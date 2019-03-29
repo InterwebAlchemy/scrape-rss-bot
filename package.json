@@ -1,7 +1,7 @@
 {
-  "name": "botkit-starter-slack",
-  "version": "0.0.2",
-  "description": "A starter kit for building a custom Slack bot with Botkit",
+  "name": "scrape-rss-bot",
+  "version": "1.0.0",
+  "description": "A bot for converting links in Slack to an RSS feed.",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
@@ -22,17 +22,17 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/howdyai/botkit-starter-slack.git"
+    "url": "https://github.com/InterwebAlchemy/scrape-rss-bot.git"
   },
   "bugs": {
-    "url": "https://github.com/howdyai/botkit-starter-slack/issues"
+    "url": "https://github.com/InterwebAlchemy/scrape-rss-bot/issues"
   },
-  "homepage": "https://github.com/howdyai/botkit-starter-slack",
+  "homepage": "https://github.com/InterwebAlchemy/scrape-rss-bot",
   "keywords": [
     "bots",
     "chatbots",
     "slack"
   ],
-  "author": "ben@howdy.ai",
+  "author": "eric@ericrallen.dev",
   "license": "MIT"
 }
