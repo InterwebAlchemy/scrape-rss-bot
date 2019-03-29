@@ -3,7 +3,7 @@ module.exports = function(controller) {
     bot.reply(message, 'Hey there! I\'m here to scrape links and generate an RSS feed for you.');
   });
 
-  controller.hears(['(https?://)?(\w+\.)?(\w)+\.\w+\/?'], 'message, message.channels', function(bot, message) {
+  controller.hears(['(https?://)?(\w+\.)?(\w)+\.\w+\/?'], 'ambient', function(bot, message) {
     console.log('heard a URL:', message);
     bot.reply(message, 'There was a URL in there.');
   });
