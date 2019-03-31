@@ -4,7 +4,7 @@ module.exports = function(controller) {
   });
 
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
-    bot.reply(message, `I think I found a link: ${message.match[0]}`);
+    bot.reply(message, `I think I found a link`);
 
     console.log('heard a URL:', message);
   });
