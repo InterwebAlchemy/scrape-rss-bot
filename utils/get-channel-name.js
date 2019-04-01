@@ -1,3 +1,5 @@
-module.exports = function(message) {
-  return message.channel._client.channels[message.body.channel].name;
+module.exports = function(bot, message, callback) {
+  bot.api.channels.info({ channel: message.channel }, function(err, response) {
+    callback(response.channel.name);
+  });
 }
