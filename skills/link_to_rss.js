@@ -46,7 +46,13 @@ module.exports = function(controller) {
 
             bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
 
-            controller.storage.links.save(item, function(err, id) {
+            const link = {
+              team: bot.team_info.id,
+              channel: channelName,
+              item,
+            };
+
+            controller.storage.links.save(link, function(err, id) {
               if (err) {
                 debug('Error: could not save link record:', err);
               }
