@@ -12,9 +12,6 @@ module.exports = function(controller) {
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
     const url = message.match[0];
 
-    console.log(message);
-    const channel = message.channel;
-
     getChannel(bot, message, (channelName) => {
       const content = {
         attachments:[
@@ -25,8 +22,8 @@ module.exports = function(controller) {
             actions: [
               {
                 "name": "add_to_rss",
-                "text": `+ Add to #${channelName} Feed`,
-                "value": `ADD_TO_RSS||${url}`,
+                "text": `+ Add to RSS Feed`,
+                "value": url,
                 "type": "button",
               },
             ]
@@ -36,32 +33,31 @@ module.exports = function(controller) {
 
       bot.whisper(message, content);
     });
-
-    //const channelName = getChannel(message);
-
-    /*scrape(url);
-
-    const meta = {};
-
-    const link = {
-      url,
-      channelName,
-      meta,
-    }
-
-    controller.storage.links.save(link, function(err, id) {
-      if (err) {
-        debug('Error: could not save link record:', err);
-      }
-    });
-    */
-  });
-
-  controller.on('block_actions', function(bot, message) {
-    console.log('block_actions:', message);
   });
 
   controller.on('interactive_message_callback', function(bot, message) {
-    console.log('interactive_message_callback:', message);
+    if (message.callback_id === 'ADD_TO_RSS') {
+
+      const url = message.actions[0].value;
+
+      scrape(url);
+
+      bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
+
+      /*const meta = {};
+
+      const link = {
+        url,
+        channelName,
+        meta,
+      }
+
+      controller.storage.links.save(link, function(err, id) {
+        if (err) {
+          debug('Error: could not save link record:', err);
+        }
+      });
+      */
+    }
   });
 }
