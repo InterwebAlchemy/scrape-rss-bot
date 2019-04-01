@@ -6,7 +6,7 @@ module.exports = function(controller) {
   controller.on('bot_channel_join', function(bot, message) {
     getChannel(bot, message, (channelName) => {
       bot.reply(message, `Hey there! I\'m here to scrape links and generate an RSS feed for #${channelName}.`);
-    })
+    });
   });
 
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
@@ -37,27 +37,27 @@ module.exports = function(controller) {
 
   controller.on('interactive_message_callback', function(bot, message) {
     if (message.callback_id === 'ADD_TO_RSS') {
+      getChannel(bot, message, (channelName) => {
+        const url = message.actions[0].value;
 
-      const url = message.actions[0].value;
+        scrape(url)
+          .then((meta) => {
+            const item = Object.assign({}, meta, { categories: [`#${channelName}`] });
 
-      scrape(url);
+            console.log(item);
 
-      // bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
+            /*
+            bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
 
-      /*const meta = {};
-
-      const link = {
-        url,
-        channelName,
-        meta,
-      }
-
-      controller.storage.links.save(link, function(err, id) {
-        if (err) {
-          debug('Error: could not save link record:', err);
-        }
+            controller.storage.links.save(item, function(err, id) {
+              if (err) {
+                debug('Error: could not save link record:', err);
+              }
+            });
+            */
+          })
+        ;
       });
-      */
     }
   });
 }
