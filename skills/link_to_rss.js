@@ -44,9 +44,6 @@ module.exports = function(controller) {
           .then((meta) => {
             const item = Object.assign({}, meta, { categories: [`#${channelName}`] });
 
-            console.log(item);
-
-            /*
             bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
 
             controller.storage.links.save(item, function(err, id) {
@@ -54,7 +51,6 @@ module.exports = function(controller) {
                 debug('Error: could not save link record:', err);
               }
             });
-            */
           })
         ;
       });
