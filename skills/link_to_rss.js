@@ -79,6 +79,15 @@ module.exports = function(controller) {
                 }
 
                 bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>.`);
+
+                setTimeout(function() {
+                  bot.replyInteractive(message, {
+                    'response_type': 'ephemeral',
+                    'text': '',
+                    'replace_original': true,
+                    'delete_original': true
+                  });
+                }, 2000);
               });
             })
           ;
