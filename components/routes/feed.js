@@ -19,52 +19,48 @@ module.exports = function(webserver, controller) {
       query.channelName = channelName;
     }
 
-    controller.storage.links
-      .find(query, function(err, links) {
-        if (err) {
-          debug('Error: could not retrieve links:', err);
+    controller.storage.links.find(query, function(err, links) {
+      if (err) {
+        debug('Error: could not retrieve links:', err);
 
-          res.send("There was an error retrieving your RSS Feed.");
-        }
+        res.send("There was an error retrieving your RSS Feed.");
+      }
 
-        const { teamName, teamUrl } = links[0];
+      const categories = [...new Set(links.map(({ categories }) => categories))];
 
-        let feedTitle = `${teamName} Slack RSS Feed`;
+      const feedItems = links.sort((a, b) => b.shareDate - a.shareDate).slice(0, 10);
 
-        if (channelName) {
-          feedTitle = `${feedTitle} for #${channelName}`;
-        }
+      const { teamName, teamUrl } = feedItems[0];
 
-        let feedDescription = `Links posted in the`;
+      let feedTitle = `${teamName} Slack RSS Feed`;
 
-        if (channelName) {
-          feedDescription = `${feedDescription} #${channelName} channel.`
-        } else {
-          feedDescription = `${feedDescription} ${teamName} Slack.`
-        }
+      if (channelName) {
+        feedTitle = `${feedTitle} for #${channelName}`;
+      }
 
-        let feedUrl = getFeed(teamId, channelName);
+      let feedDescription = `Links posted in the`;
 
-        const categories = [...new Set(links.map(({ categories }) => [...categories]).flat())];
+      if (channelName) {
+        feedDescription = `${feedDescription} #${channelName} channel.`
+      } else {
+        feedDescription = `${feedDescription} ${teamName} Slack.`
+      }
 
-        const feed = new RSS({
-          title: feedTitle,
-          description: feedDescription,
-          feed_url: feedUrl,
-          site_url: teamUrl,
-          categories,
-        });
+      let feedUrl = getFeed(teamId, channelName);
 
-        links.forEach(({ item }) => {
-          feed.item(item);
-        });
+      const feed = new RSS({
+        title: feedTitle,
+        description: feedDescription,
+        feed_url: feedUrl,
+        site_url: teamUrl,
+        categories,
+      });
 
-        res.send(feed.xml());
-      })
-      .sort({
-        shareDate: -1
-      })
-      .limit(10)
-    ;
+      links.forEach(({ item }) => {
+        feed.item(item);
+      });
+
+      res.send(feed.xml());
+    });
   });
 }

@@ -48,8 +48,6 @@ module.exports = function(controller) {
           .then((meta) => {
             const item = Object.assign({}, meta, { categories: [`#${channelName}`], date: date.toISOString() });
 
-
-
             const link = {
               teamId: bot.team_info.id,
               teamName: bot.team_info.name,
