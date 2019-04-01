@@ -15,6 +15,7 @@
     "express": "^4.14.0",
     "express-hbs": "^2.0.2",
     "querystring": "^0.2.0",
+    "rss": "^1.2.2",
     "unfurl.js": "^3.0.1",
     "wordfilter": "^0.2.6"
   },

@@ -40,15 +40,18 @@ module.exports = function(controller) {
       getChannel(bot, message, (channelName) => {
         const url = message.actions[0].value;
 
-        scrape(url)
+        bot.replyInteractive(message, `Adding to RSS Feed...`);
+
+        console.log(bot);
+
+        /*scrape(url)
           .then((meta) => {
             const item = Object.assign({}, meta, { categories: [`#${channelName}`] });
 
-            bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
-
             const link = {
-              team: bot.team_info.id,
-              channel: channelName,
+              teamId: bot.team_info.id,
+              teamName: bot.team_info.name,
+              channelName,
               item,
             };
 
@@ -56,9 +59,11 @@ module.exports = function(controller) {
               if (err) {
                 debug('Error: could not save link record:', err);
               }
+
+              bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
             });
           })
-        ;
+        ;*/
       });
     }
   });
