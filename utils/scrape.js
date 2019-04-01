@@ -1,14 +1,13 @@
-const request = require('request-promise');
-const $ = require('cheerio');
+const unfurl = require('unfurl.js');
 
 module.exports = function(url = '') {
   if (url.length) {
-    request(url)
+    unfurl(url)
       .then((response) => {
-        console.log($('head', response));
+        console.log(response);
       })
       .catch((error) => {
-        console.error('ERROR SCRAPING URL:', url, error)
+        console.error('ERROR SCRAPING URL:', url, error);
       })
     ;
   }

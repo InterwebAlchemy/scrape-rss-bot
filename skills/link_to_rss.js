@@ -42,7 +42,7 @@ module.exports = function(controller) {
 
       scrape(url);
 
-      bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
+      // bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
 
       /*const meta = {};
 
