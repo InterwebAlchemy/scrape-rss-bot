@@ -10,16 +10,20 @@ module.exports = function(controller) {
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
     const url = message.match[0];
 
-    console.log(message.channel._client);
+    console.log(message);
 
-    const channelName = getChannel(message);
+    bot.api.channels.info({ channel: message.channel }, function(err,response) {
+      console.log(response);
+    });
 
-    const rssQuestion = [
+    //const channelName = getChannel(message);
+
+    const blocks = [
       {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": `Would you like to add this <${url}|URL> to the <${getFeed('test', channelName)}|#${channelName} RSS Feed>?`,
+          "text": `Would you like to add this link to the RSS Feed?`,
         },
         "accessory": {
           "type": "button",
@@ -33,7 +37,8 @@ module.exports = function(controller) {
       }
     ];
 
-    bot.whisper(message, rssQuestion);
+    bot.whisper(message, { blocks });
+    bot.reply(message, { blocks });
 
     /*scrape(url);
 
@@ -65,9 +70,7 @@ module.exports = function(controller) {
 
         const [ action, url ] = message.actions[0].name.split('|:|');
 
-        const channelName = message.channel._client.channels[message.body.channel].name;
-
-        const reply = `Okay, I've added that <${url}|URL> to the <|#${getFeed('test', channelName)} RSS Feed>.`
+        const reply = `:+1: I've added that link to the RSS Feed.`
 
         bot.replyInteractive(message, reply);
       }
