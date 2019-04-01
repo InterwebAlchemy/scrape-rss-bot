@@ -16,7 +16,7 @@ module.exports = function(controller) {
       const content = {
         attachments:[
           {
-            title: `Would you like to add that <${url}|link> to the <${getFeed('skookum', channelName)}|#${channelName} RSS Feed>?`,
+            title: `Would you like to add that <${url}|link> to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>?`,
             callback_id: 'ADD_TO_RSS',
             attachment_type: 'default',
             actions: [
@@ -24,6 +24,12 @@ module.exports = function(controller) {
                 "name": "add_to_rss",
                 "text": `+ Add to RSS Feed`,
                 "value": url,
+                "type": "button",
+              },
+              {
+                "name": "not_to_rss",
+                "text": `No`,
+                "value": 'NO',
                 "type": "button",
               },
             ]
@@ -37,36 +43,47 @@ module.exports = function(controller) {
 
   controller.on('interactive_message_callback', function(bot, message) {
     if (message.callback_id === 'ADD_TO_RSS') {
-      getChannel(bot, message, (channelName) => {
-        const url = message.actions[0].value;
 
-        bot.replyInteractive(message, `Adding to RSS Feed...`);
+      const url = message.actions[0].value;
 
-        const date = new Date();
+      if (url === 'NO') {
+        bot.replyInteractive(message, {
+          'response_type': 'ephemeral',
+          'text': '',
+          'replace_original': true,
+          'delete_original': true
+        });
+      } else {
+        getChannel(bot, message, (channelName) => {
+          bot.replyInteractive(message, `Adding to RSS Feed...`);
 
-        scrape(url)
-          .then((meta) => {
-            const item = Object.assign({}, meta, { categories: [`#${channelName}`], date: date.toISOString() });
+          const date = new Date();
 
-            const link = {
-              teamId: bot.team_info.id,
-              teamName: bot.team_info.name,
-              teamUrl: bot.team_info.url,
-              shareDate: date.getTime(),
-              channelName,
-              item,
-            };
+          scrape(url)
+            .then((meta) => {
+              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date: date.toISOString() });
 
-            controller.storage.links.save(link, function(err, id) {
-              if (err) {
-                debug('Error: could not save link record:', err);
-              }
+              const link = {
+                id: url,
+                teamId: bot.team_info.id,
+                teamName: bot.team_info.name,
+                teamUrl: bot.team_info.url,
+                shareDate: date.getTime(),
+                channelName,
+                item,
+              };
 
-              bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
-            });
-          })
-        ;
-      });
+              controller.storage.links.save(link, function(err, id) {
+                if (err) {
+                  debug('Error: could not save link record:', err);
+                }
+
+                bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>.`);
+              });
+            })
+          ;
+        });
+      }
     }
   });
 }
