@@ -42,15 +42,19 @@ module.exports = function(controller) {
 
         bot.replyInteractive(message, `Adding to RSS Feed...`);
 
-        console.log(bot);
+        const date = new Date();
 
-        /*scrape(url)
+        scrape(url)
           .then((meta) => {
-            const item = Object.assign({}, meta, { categories: [`#${channelName}`] });
+            const item = Object.assign({}, meta, { categories: [`#${channelName}`], date: date.toISOString() });
+
+
 
             const link = {
               teamId: bot.team_info.id,
               teamName: bot.team_info.name,
+              teamUrl: bot.team_info.url,
+              shareDate: date.getTime(),
               channelName,
               item,
             };
@@ -63,7 +67,7 @@ module.exports = function(controller) {
               bot.replyInteractive(message, `:+1: I've added this link to the RSS Feed.`);
             });
           })
-        ;*/
+        ;
       });
     }
   });
