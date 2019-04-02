@@ -54,6 +54,14 @@ module.exports = function(webserver, controller) {
         feed_url: feedUrl,
         site_url: teamUrl,
         categories,
+        ttl: 60,
+        custom_namespaces: {
+          'webfeeds': 'http://webfeeds.org/rss/1.0',
+        },
+        custom_elements: [
+          { 'webfeeds:logo': `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/feed-logo.svg` },
+          { 'webfeeds:accentColor': '#2F6C8F' }
+        ]
       });
 
       links.forEach(({ item }) => {
