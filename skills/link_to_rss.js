@@ -9,6 +9,12 @@ module.exports = function(controller) {
     });
   });
 
+  controller.on('slash_command',function(bot, message) {
+    getChannel(bot, message, (channelName) => {
+      bot.replyPrivate(message, `#${channelName} RSS Feed: <${getFeed(bot.team_info.id, channelName)}>`);
+    });
+  });
+
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
     const url = message.match[0];
 
