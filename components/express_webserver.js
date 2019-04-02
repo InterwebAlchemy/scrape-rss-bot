@@ -8,6 +8,8 @@ var hbs = require('express-hbs');
 
 module.exports = function(controller) {
 
+    const port = process.env.PORT || 3000;
+
     var webserver = express();
     webserver.use(function(req, res, next) {
         req.rawBody = '';
@@ -31,9 +33,9 @@ module.exports = function(controller) {
 
     var server = http.createServer(webserver);
 
-    server.listen(process.env.PORT || 3000, null, function() {
+    server.listen(port, null, function() {
 
-        console.log('Express webserver configured and listening at http://localhost:' + process.env.PORT || 3000);
+        console.log(`Express webserver configured and listening at http://localhost:${port}`);
 
     });
 

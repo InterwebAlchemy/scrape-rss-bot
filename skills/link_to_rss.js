@@ -5,13 +5,15 @@ const getChannel = require('../utils/get-channel-name');
 module.exports = function(controller) {
   controller.on('bot_channel_join', function(bot, message) {
     getChannel(bot, message, (channelName) => {
-      bot.reply(message, `Hey there! I\'m here to scrape links and generate an RSS feed for #${channelName}.`);
+      bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);
+      bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelName)}>`);
+      bot.reply(message, 'You can get the feed URL at any time by typing `/rssfeed`');
     });
   });
 
   controller.on('slash_command',function(bot, message) {
     getChannel(bot, message, (channelName) => {
-      bot.replyPrivate(message, `#${channelName} RSS Feed: <${getFeed(bot.team_info.id, channelName)}>`);
+      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelName)}>`);
     });
   });
 
@@ -22,7 +24,7 @@ module.exports = function(controller) {
       const content = {
         attachments:[
           {
-            title: `Would you like to add that <${url}|link> to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>?`,
+            title: `Would you like to add this link to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>?`,
             callback_id: 'ADD_TO_RSS',
             attachment_type: 'default',
             actions: [
