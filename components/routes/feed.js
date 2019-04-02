@@ -36,7 +36,7 @@ module.exports = function(webserver, controller) {
         let feedTitle = `${teamName} Slack RSS Feed`;
 
         if (channelName) {
-          feedTitle = `${feedTitle} for #${channelName}`;
+          feedTitle = `#${channelName} ${feedTitle}`;
         }
 
         let feedDescription = `Links posted in the`;
