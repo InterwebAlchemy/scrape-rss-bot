@@ -30,45 +30,50 @@ module.exports = function(webserver, controller) {
 
       const feedItems = links.sort((a, b) => b.shareDate - a.shareDate).slice(0, 10);
 
-      const { teamName, teamUrl } = feedItems[0];
+      controller.storage.teams.get(teamId, function(err, team) {
+        const { url: teamUrl, name: teamName } = team;
 
-      let feedTitle = `${teamName} Slack RSS Feed`;
+        let feedTitle = `${teamName} Slack RSS Feed`;
 
-      if (channelName) {
-        feedTitle = `${feedTitle} for #${channelName}`;
-      }
+        if (channelName) {
+          feedTitle = `${feedTitle} for #${channelName}`;
+        }
 
-      let feedDescription = `Links posted in the`;
+        let feedDescription = `Links posted in the`;
 
-      if (channelName) {
-        feedDescription = `${feedDescription} #${channelName} channel.`
-      } else {
-        feedDescription = `${feedDescription} ${teamName} Slack.`
-      }
+        if (channelName) {
+          feedDescription = `${feedDescription} #${channelName} channel`;
+        } else {
+          feedDescription = `${feedDescription} ${teamName} Slack`;
+        }
 
-      let feedUrl = getFeed(teamId, channelName);
+        feedDescription = `${feedDescription} and gathered by @RSS.`;
 
-      const feed = new RSS({
-        title: feedTitle,
-        description: feedDescription,
-        feed_url: feedUrl,
-        site_url: teamUrl,
-        categories,
-        ttl: 60,
-        custom_namespaces: {
-          'webfeeds': 'http://webfeeds.org/rss/1.0',
-        },
-        custom_elements: [
-          { 'webfeeds:logo': `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/feed-logo.svg` },
-          { 'webfeeds:accentColor': '#2F6C8F' }
-        ]
+        let feedUrl = getFeed(teamId, channelName);
+
+        const feed = new RSS({
+          title: feedTitle,
+          description: feedDescription,
+          feed_url: feedUrl,
+          site_url: teamUrl,
+          categories,
+          pubDate: new Date().toISOString(),
+          ttl: 60,
+          custom_namespaces: {
+            'webfeeds': 'http://webfeeds.org/rss/1.0',
+          },
+          custom_elements: [
+            { 'webfeeds:logo': `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/feed-logo.svg` },
+            { 'webfeeds:accentColor': '#2F6C8F' }
+          ]
+        });
+
+        feedItems.forEach(({ item }) => {
+          feed.item(item);
+        });
+
+        res.send(feed.xml());
       });
-
-      links.forEach(({ item }) => {
-        feed.item(item);
-      });
-
-      res.send(feed.xml());
     });
   });
 }
