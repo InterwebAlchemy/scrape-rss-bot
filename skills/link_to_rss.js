@@ -74,8 +74,6 @@ module.exports = function(controller) {
               const link = {
                 id: url,
                 teamId: bot.team_info.id,
-                teamName: bot.team_info.name,
-                teamUrl: bot.team_info.url,
                 shareDate: date.getTime(),
                 channelName,
                 item,

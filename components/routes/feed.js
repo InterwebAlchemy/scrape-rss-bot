@@ -12,11 +12,17 @@ module.exports = function(webserver, controller) {
     const { teamId, channelName } = req.params;
 
     const query = {
-      teamId
+      $query: {
+        teamId,
+      },
+      limit: 10,
+      $orderBy: {
+        shareDate: -1
+      }
     };
 
     if (channelName) {
-      query.channelName = channelName;
+      query.$query.channelName = channelName;
     }
 
     controller.storage.links.find(query, function(err, links) {
@@ -27,8 +33,6 @@ module.exports = function(webserver, controller) {
       }
 
       const categories = [...new Set(links.map(({ categories }) => categories))];
-
-      const feedItems = links.sort((a, b) => b.shareDate - a.shareDate).slice(0, 10);
 
       controller.storage.teams.get(teamId, function(err, team) {
         const { url: teamUrl, name: teamName } = team;
@@ -68,7 +72,7 @@ module.exports = function(webserver, controller) {
           ]
         });
 
-        feedItems.forEach(({ item }) => {
+        links.forEach(({ item }) => {
           feed.item(item);
         });
 
