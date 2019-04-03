@@ -4,7 +4,7 @@ const getChannel = require('../utils/get-channel-name');
 
 module.exports = function(controller) {
   controller.on('bot_channel_join', function(bot, message) {
-    getChannel(bot, message, (channelName) => {
+    getChannel(bot, message, (channelName, channelId) => {
       bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);
       bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelName)}>`);
       bot.reply(message, 'You can get the feed URL at any time by typing `/rssfeed`');
@@ -12,15 +12,15 @@ module.exports = function(controller) {
   });
 
   controller.on('slash_command',function(bot, message) {
-    getChannel(bot, message, (channelName) => {
-      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelName)}>`);
+    getChannel(bot, message, (channelName, channelName) => {
+      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
     });
   });
 
   controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
     const url = message.match[0];
 
-    getChannel(bot, message, (channelName) => {
+    getChannel(bot, message, (channelName, channelId) => {
       const content = {
         attachments:[
           {
@@ -36,7 +36,7 @@ module.exports = function(controller) {
               },
               {
                 "name": "not_to_rss",
-                "text": `No`,
+                "text": `No Thanks`,
                 "value": 'NO',
                 "type": "button",
               },
@@ -62,20 +62,21 @@ module.exports = function(controller) {
           'delete_original': true
         });
       } else {
-        getChannel(bot, message, (channelName) => {
+        getChannel(bot, message, (channelName, channelId) => {
           bot.replyInteractive(message, `Adding to RSS Feed...`);
-
-          const date = new Date();
 
           scrape(url)
             .then((meta) => {
-              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date: date.toISOString() });
+              const date = Date.now();
+
+              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date });
 
               const link = {
                 id: url,
                 teamId: bot.team_info.id,
-                shareDate: date.getTime(),
+                shareDate: date,
                 channelName,
+                channelId,
                 item,
               };
 
@@ -84,7 +85,7 @@ module.exports = function(controller) {
                   debug('Error: could not save link record:', err);
                 }
 
-                bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>.`);
+                bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelId)}|#${channelName} RSS Feed>.`);
 
                 setTimeout(function() {
                   bot.replyInteractive(message, {
@@ -93,7 +94,7 @@ module.exports = function(controller) {
                     'replace_original': true,
                     'delete_original': true
                   });
-                }, 2000);
+                }, 2500);
               });
             })
           ;

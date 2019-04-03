@@ -2,10 +2,10 @@ const RSS = require('rss');
 const getFeed = require('../../utils/rss-link');
 
 module.exports = function(webserver, controller) {
-  webserver.get('/feed/:teamId/:channelName', function(req, res, next) {
-    const { teamId, channelName } = req.params;
+  webserver.get('/feed/:teamId/:channel', function(req, res, next) {
+    const { teamId, channel } = req.params;
 
-    if (!teamId || !channelName) {
+    if (!teamId || !channel) {
       res.sendStatus(404);
 
       return next([new Error("Feed not found.")]);
@@ -14,7 +14,7 @@ module.exports = function(webserver, controller) {
     const query = {
       $query: {
         teamId,
-        channelName,
+        channel,
       },
       limit: 20,
       $orderBy: {
@@ -36,11 +36,11 @@ module.exports = function(webserver, controller) {
       controller.storage.teams.get(teamId, function(err, team) {
         const { url: teamUrl, name: teamName } = team;
 
-        const feedTitle = `#${channelName} ${teamName} Slack RSS Feed`;
+        const feedTitle = `#${channel} ${teamName} Slack RSS Feed`;
 
-        const feedDescription = `Links posted in the ${channelName} channel in the ${teamName} Slack and gathered by @RSS.`;
+        const feedDescription = `Links posted in the ${channel} channel in the ${teamName} Slack and gathered by @RSS.`;
 
-        const feedUrl = getFeed(teamId, channelName);
+        const feedUrl = getFeed(teamId, channel);
 
         const feed = new RSS({
           title: feedTitle,
@@ -48,7 +48,7 @@ module.exports = function(webserver, controller) {
           feed_url: feedUrl,
           site_url: teamUrl,
           categories,
-          pubDate: new Date().toISOString(),
+          pubDate: (links.length) ? links[0].shareDate : Date.now(),
           ttl: 60,
           custom_namespaces: {
             'webfeeds': 'http://webfeeds.org/rss/1.0',
