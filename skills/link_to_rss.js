@@ -1,3 +1,5 @@
+const shortId = require('shortid');
+
 const scrape = require('../utils/scrape');
 const getFeed = require('../utils/rss-link');
 const getChannel = require('../utils/get-channel-name');
@@ -69,10 +71,10 @@ module.exports = function(controller) {
             .then((meta) => {
               const date = Date.now();
 
-              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date });
+              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid: shortId.generate() });
 
               const link = {
-                id: url,
+                url,
                 teamId: bot.team_info.id,
                 shareDate: date,
                 channelName,
