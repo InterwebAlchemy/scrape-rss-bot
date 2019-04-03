@@ -26,7 +26,7 @@ module.exports = function(controller) {
       const content = {
         attachments:[
           {
-            title: `Would you like to add this link (\`${url}\`) to the *#${channelName} RSS Feed*?`,
+            title: `Would you like to add ${url} to the *#${channelName} RSS Feed*?`,
             callback_id: 'ADD_TO_RSS',
             attachment_type: 'default',
             actions: [
@@ -70,10 +70,12 @@ module.exports = function(controller) {
           scrape(url)
             .then((meta) => {
               const date = Date.now();
+              const guid = shortId.generate();
 
-              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid: shortId.generate() });
+              const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid });
 
               const link = {
+                id: guid,
                 url,
                 teamId: bot.team_info.id,
                 shareDate: date,
