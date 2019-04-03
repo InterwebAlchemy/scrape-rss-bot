@@ -19,7 +19,8 @@ module.exports = function(controller) {
     });
   });
 
-  controller.hears(['<(https?:\\/\\/\\S+)[^\\|]+>'], 'ambient', function(bot, message) {
+  controller.hears(['<(https?:\\/\\/[-A-Za-z0-9\\._~:\\/?#[\\]@!$&\'()\\*\\+,;=]+)>'], 'ambient', function(bot, message) {
+    console.log(message);
     const url = message.match[1];
 
     getChannel(bot, message, (channelName, channelId) => {
@@ -71,6 +72,8 @@ module.exports = function(controller) {
             .then((meta) => {
               const date = Date.now();
               const guid = shortId.generate();
+
+              console.log(meta);
 
               const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid });
 

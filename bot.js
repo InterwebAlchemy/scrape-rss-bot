@@ -48,26 +48,19 @@ This bot demonstrates many of the core features of Botkit:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-if (!process.env.clientId || !process.env.clientSecret || !process.env.PORT) {
-  usage_tip();
-  // process.exit(1);
-}
+const Botkit = require('botkit');
 
-var Botkit = require('botkit');
-var debug = require('debug')('botkit:main');
-
-var bot_options = {
-    clientId: process.env.clientId,
-    clientSecret: process.env.clientSecret,
-    clientSigningSecret: process.env.clientSigningSecret,
-    scopes: ['bot'],
-    // debug: true,
+const bot_options = {
+  clientId: process.env.clientId,
+  clientSecret: process.env.clientSecret,
+  clientSigningSecret: process.env.clientSigningSecret,
+  scopes: ['bot'],
 };
 
 // Use a mongo database if specified, otherwise store in a JSON file local to the app.
 // Mongo is automatically configured when deploying to Heroku
 if (process.env.MONGODB_URI) {
-    var mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI, tables: [ 'links', 'feeds' ] });
+    const mongoStorage = require('botkit-storage-mongo')({ mongoUri: process.env.MONGODB_URI, tables: [ 'links', 'feeds' ] });
 
     bot_options.storage = mongoStorage;
 } else {
@@ -75,12 +68,12 @@ if (process.env.MONGODB_URI) {
 }
 
 // Create the Botkit controller, which controls all instances of the bot.
-var controller = Botkit.slackbot(bot_options);
+const controller = Botkit.slackbot(bot_options);
 
 controller.startTicking();
 
 // Set up an Express-powered webserver to expose oauth and webhook endpoints
-var webserver = require(__dirname + '/components/express_webserver.js')(controller);
+const webserver = require(__dirname + '/components/express_webserver.js')(controller);
 
 webserver.get('/', function(req, res){
   res.render('index', {
@@ -97,7 +90,7 @@ require(__dirname + '/components/user_registration.js')(controller);
 // Send an onboarding message when a new team joins
 require(__dirname + '/components/onboarding.js')(controller);
 
-var normalizedPath = require("path").join(__dirname, "skills");
+const normalizedPath = require("path").join(__dirname, "skills");
 
 require("fs").readdirSync(normalizedPath).forEach(function(file) {
   require("./skills/" + file)(controller);
