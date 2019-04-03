@@ -43,7 +43,7 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
     // convert the Set back to an Array because that's what we actually need
     // NOTE: at present, only the #channel is used as a category, but we
     // may need to support other categories in the future
-    const categories = [...new Set([].concat.apply([], links.map(({ item: { categories }}) => categories)))];
+    const categories = (links.length) ? [...new Set([].concat.apply([], links.map(({ item: { categories }}) => categories)))] : [];
 
     controller.storage.teams.get(teamId, function(err, team) {
       const { url: teamUrl, name: teamName } = team;
@@ -159,6 +159,18 @@ module.exports = function(webserver, controller) {
             } else {
               generateFeed(controller, teamId, channel, req, res, next);
             }
+          } else {
+            console.log(`Retrieving ${teamId}::${channel} from cache`);
+
+            const cachedFeed = new RSS(feed.feed);
+
+            res
+              .set('Content-Type', 'application/rss+xml')
+              .status(200)
+              .send(cachedFeed.xml())
+            ;
+
+            return next();
           }
         });
       // NO CACHED FEED
