@@ -14,7 +14,7 @@ module.exports = function(controller) {
   });
 
   controller.on('slash_command',function(bot, message) {
-    getChannel(bot, message, (channelName, channelName) => {
+    getChannel(bot, message, (channelName, channelId) => {
       bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
     });
   });
