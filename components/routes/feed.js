@@ -1,35 +1,34 @@
 const RSS = require('rss');
 const getFeed = require('../../utils/rss-link');
 
-var debug = require('debug')('rss:feed');
-
 module.exports = function(webserver, controller) {
-  debug('Configured /feed url');
-
-  webserver.get('/feed/:teamId/:channelName?', function(req, res) {
-    res.status(200);
-
+  webserver.get('/feed/:teamId/:channelName', function(req, res, next) {
     const { teamId, channelName } = req.params;
+
+    if (!teamId || !channelName) {
+      res.sendStatus(404);
+
+      return next([new Error("Feed not found.")]);
+    }
 
     const query = {
       $query: {
         teamId,
+        channelName,
       },
-      limit: 10,
+      limit: 20,
       $orderBy: {
         shareDate: -1
       }
     };
 
-    if (channelName) {
-      query.$query.channelName = channelName;
-    }
-
     controller.storage.links.find(query, function(err, links) {
       if (err) {
-        debug('Error: could not retrieve links:', err);
+        console.error('ERROR: could not retrieve links for feed:', err);
 
-        res.send("There was an error retrieving your RSS Feed.");
+        res.sendStatus(404);
+
+        return next([new Error("Could not retrieve links for feed.")]);
       }
 
       const categories = [...new Set(links.map(({ categories }) => categories))];
@@ -37,23 +36,11 @@ module.exports = function(webserver, controller) {
       controller.storage.teams.get(teamId, function(err, team) {
         const { url: teamUrl, name: teamName } = team;
 
-        let feedTitle = `${teamName} Slack RSS Feed`;
+        const feedTitle = `#${channelName} ${teamName} Slack RSS Feed`;
 
-        if (channelName) {
-          feedTitle = `#${channelName} ${feedTitle}`;
-        }
+        const feedDescription = `Links posted in the ${channelName} channel in the ${teamName} Slack and gathered by @RSS.`;
 
-        let feedDescription = `Links posted in the`;
-
-        if (channelName) {
-          feedDescription = `${feedDescription} #${channelName} channel`;
-        } else {
-          feedDescription = `${feedDescription} ${teamName} Slack`;
-        }
-
-        feedDescription = `${feedDescription} and gathered by @RSS.`;
-
-        let feedUrl = getFeed(teamId, channelName);
+        const feedUrl = getFeed(teamId, channelName);
 
         const feed = new RSS({
           title: feedTitle,
@@ -76,7 +63,11 @@ module.exports = function(webserver, controller) {
           feed.item(item);
         });
 
-        res.send(feed.xml());
+        res
+          .status(200)
+          .set('Content-Type', 'application/rss+xml')
+          .send(feed.xml())
+        ;
       });
     });
   });
