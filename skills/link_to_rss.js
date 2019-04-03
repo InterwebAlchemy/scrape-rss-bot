@@ -33,7 +33,7 @@ module.exports = function(controller) {
               {
                 "name": "add_to_rss",
                 "text": `+ Add to RSS Feed`,
-                "value": url,
+                "value": `${message.ts}:|:${url}`,
                 "type": "button",
               },
               {
@@ -54,7 +54,7 @@ module.exports = function(controller) {
   controller.on('interactive_message_callback', function(bot, message) {
     if (message.callback_id === 'ADD_TO_RSS') {
 
-      const url = message.actions[0].value;
+      const [ timestamp, url ] = message.actions[0].value.split(':|:');
 
       if (url === 'NO') {
         bot.replyInteractive(message, {
@@ -90,6 +90,8 @@ module.exports = function(controller) {
                 }
 
                 bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelId)}|#${channelName} RSS Feed>.`);
+
+                bot.api.reactions.add({ channel: message.channel, name: 'book', timestamp });
 
                 setTimeout(function() {
                   bot.replyInteractive(message, {
