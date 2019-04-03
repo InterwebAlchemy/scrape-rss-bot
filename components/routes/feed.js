@@ -19,9 +19,12 @@ module.exports = function(webserver, controller) {
         console.error('ERROR: Could not load cached feed:', err);
       }
 
+      // if we had a cached feed
       if (feed) {
         const { pubDate } = feed.feed;
 
+        // we'll want to grab the latest post and see if it has a shareDate after
+        // our cached feed's pubDate
         const lastestPostQuery = {
           $query: {
             teamId,
@@ -33,6 +36,7 @@ module.exports = function(webserver, controller) {
           },
         };
 
+        // get the latest post
         controller.storage.links.find(lastestPostQuery, function(err, links) {
           if (err) {
             console.error('ERROR: no recent posts:', err);
@@ -44,8 +48,6 @@ module.exports = function(webserver, controller) {
 
           if (links.length) {
             const { shareDate } = links[0];
-
-            console.log(shareDate, pubDate);
 
             if (shareDate <= pubDate) {
               console.log(`Retrieving ${teamId}::${channel} from cache`);
@@ -64,6 +66,8 @@ module.exports = function(webserver, controller) {
             }
           }
         });
+      // NO CACHED FEED
+      // let's build and cached one
       } else {
         const postsQuery = {
           $query: {
@@ -92,8 +96,6 @@ module.exports = function(webserver, controller) {
           // NOTE: at present, only the #channel is used as a category, but we
           // may need to support other categories in the future
           const categories = [...new Set([].concat.apply([], links.map(({ item: { categories }}) => categories)))];
-
-          console.log(categories);
 
           controller.storage.teams.get(teamId, function(err, team) {
             const { url: teamUrl, name: teamName } = team;

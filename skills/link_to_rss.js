@@ -19,14 +19,14 @@ module.exports = function(controller) {
     });
   });
 
-  controller.hears(['((https?:\\/\\/)?(\\w+\\.)?(\\w+\\.)(\\w+)\\.?(\\w+)?\\/?[-/+=&;%@?#.\\w_]*)'], 'ambient', function(bot, message) {
-    const url = message.match[0];
+  controller.hears(['<(.+)\\|?.*>'], 'ambient', function(bot, message) {
+    const url = message.match[1];
 
     getChannel(bot, message, (channelName, channelId) => {
       const content = {
         attachments:[
           {
-            title: `Would you like to add this link to the <${getFeed(bot.team_info.id, channelName)}|#${channelName} RSS Feed>?`,
+            title: `Would you like to add this link (\`${url}\`) to the *#${channelName} RSS Feed*?`,
             callback_id: 'ADD_TO_RSS',
             attachment_type: 'default',
             actions: [
