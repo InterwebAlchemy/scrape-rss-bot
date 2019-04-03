@@ -20,7 +20,6 @@ module.exports = function(url = '') {
   if (url.length) {
     return unfurl(url)
       .then((response) => {
-        console.log(response);
         const title = getMeta('title', response);
         const description = getMeta('description', response);
 
