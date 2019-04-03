@@ -19,14 +19,14 @@ module.exports = function(controller) {
     });
   });
 
-  controller.hears(['<(.+)\\|?.*>'], 'ambient', function(bot, message) {
+  controller.hears(['<(https?:\\/\\/\\S+)[^\\|]+>'], 'ambient', function(bot, message) {
     const url = message.match[1];
 
     getChannel(bot, message, (channelName, channelId) => {
       const content = {
         attachments:[
           {
-            title: `Would you like to add ${url} to the *#${channelName} RSS Feed*?`,
+            title: `Would you like to add ${url} to the #${channelName} RSS Feed?`,
             callback_id: 'ADD_TO_RSS',
             attachment_type: 'default',
             actions: [

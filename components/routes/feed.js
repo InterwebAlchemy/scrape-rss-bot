@@ -72,7 +72,6 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
       });
 
       links.forEach((link) => {
-        console.log(link.item.title, link.shareDate);
         feed.item(link.item);
       });
 
