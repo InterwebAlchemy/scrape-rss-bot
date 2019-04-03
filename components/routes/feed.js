@@ -6,12 +6,14 @@ module.exports = function(webserver, controller) {
   webserver.get('/feed/:teamId/:channel', function(req, res, next) {
     const { teamId, channel } = req.params;
 
+    // make sure we were sent the team id and channel id
     if (!teamId || !channel) {
       res.sendStatus(404);
 
       return next([new Error("Feed not found.")]);
     }
 
+    // let's check to see if we already have a valid cached feed
     controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
       if (err) {
         console.error('ERROR: Could not load cached feed:', err);
@@ -83,9 +85,15 @@ module.exports = function(webserver, controller) {
             return next([new Error("Could not retrieve posts for feed.")]);
           }
 
-          const categories = new Set([].concat.apply([], links.map(({ item: { categories }}) => categories)));
+          // gather categories from all posts
+          // concat them into a single Array
+          // convert them to a Set to deduplicate the Array
+          // convert the Set back to an Array because that's what we actually need
+          // NOTE: at present, only the #channel is used as a category, but we
+          // may need to support other categories in the future
+          const categories = [...new Set([].concat.apply([], links.map(({ item: { categories }}) => categories)))];
 
-          console.log('Categories:', categories);
+          console.log(categories);
 
           controller.storage.teams.get(teamId, function(err, team) {
             const { url: teamUrl, name: teamName } = team;
