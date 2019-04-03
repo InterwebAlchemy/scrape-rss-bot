@@ -2,6 +2,8 @@ const RSS = require('rss');
 
 const getFeed = require('../../utils/rss-link');
 
+// This is a gross hack until botkit-storage-mongo supports passing options for
+// our collection.find() query to sort and limit our queries
 const trimAndSortLinks = (links, sort = {}, limit = 0) => {
   let newLinks = [...links];
 
@@ -137,8 +139,6 @@ module.exports = function(webserver, controller) {
           }
 
           const links = trimAndSortLinks(feedLinks, { shareDate: -1 }, 1);
-
-          console.log('LINK:', links);
 
           if (links.length) {
             const { shareDate } = links[0];
