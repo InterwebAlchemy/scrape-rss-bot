@@ -2,15 +2,21 @@ const RSS = require('rss');
 
 const getFeed = require('../../utils/rss-link');
 
+const NEW_SORT = -1;
+const OLD_SORT = 1;
+
+const FEED_SORT = NEW_SORT; // -1 Newest First; 1 Oldest First
+const FEED_ITEMS = 10;
+
 // This is a gross hack until botkit-storage-mongo supports passing options for
 // our collection.find() query to sort and limit our queries
-const trimAndSortLinks = (links, sort = {}, limit = 0) => {
+const trimAndSortLinks = (links, sort = {}, limit = FEED_ITEMS) => {
   let newLinks = [...links];
 
   if (Object.keys(sort).length) {
     const [ sortField, sortOrder ] = Object.entries(sort)[0];
 
-    newLinks = newLinks.sort((a, b) => (sortOrder === -1) ? b[sortField] - a[sortField] : a[sortField] - b[sortField]);
+    newLinks = newLinks.sort((a, b) => (sortOrder === NEW_SORT) ? b[sortField] - a[sortField] : a[sortField] - b[sortField]);
   }
 
   if (limit) {
@@ -18,6 +24,12 @@ const trimAndSortLinks = (links, sort = {}, limit = 0) => {
   }
 
   return newLinks;
+};
+
+const getPubDate = (links) => {
+  const newestIndex = (FEED_SORT === OLD_SORT) ? links.length - 1 : 0;
+
+  return (links.length) ? links[newestIndex].shareDate : Date.now();
 };
 
 const generateFeed = (controller, teamId, channel, req, res, next) => {
@@ -35,7 +47,7 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
       return next([new Error("Could not retrieve posts for feed.")]);
     }
 
-    const links = trimAndSortLinks(feedLinks, { shareDate: -1 }, 10);
+    const links = trimAndSortLinks(feedLinks, { shareDate: FEED_SORT }, FEED_ITEMS);
 
     // gather categories from all posts
     // concat them into a single Array
@@ -54,13 +66,15 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
 
       const feedUrl = getFeed(teamId, channel);
 
+      const pubDate = getPubDate(links);
+
       const feed = new RSS({
         title: feedTitle,
         description: feedDescription,
         feed_url: feedUrl,
         site_url: teamUrl,
         categories,
-        pubDate: (links.length) ? links[links.length - 1].shareDate : Date.now(),
+        pubDate,
         ttl: 60,
         language: 'en-US',
         custom_namespaces: {
@@ -117,7 +131,7 @@ module.exports = function(webserver, controller) {
     }
 
     // let's check to see if we already have a valid cached feed
-    /*controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
+    controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
       if (err) {
         console.error('ERROR: Could not load cached feed:', err);
       }
@@ -181,9 +195,9 @@ module.exports = function(webserver, controller) {
         });
       // NO CACHED FEED
       // let's build a new feed and cache it
-      } else {*/
+      } else {
         generateFeed(controller, teamId, channel, req, res, next);
-      /*}
-    });*/
+      }
+    });
   });
 }
