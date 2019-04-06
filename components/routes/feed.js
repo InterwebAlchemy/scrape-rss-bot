@@ -35,7 +35,7 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
       return next([new Error("Could not retrieve posts for feed.")]);
     }
 
-    const links = trimAndSortLinks(feedLinks, { shareDate: 1 }, 20);
+    const links = trimAndSortLinks(feedLinks, { shareDate: -1 }, 10);
 
     // gather categories from all posts
     // concat them into a single Array
@@ -62,14 +62,20 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
         categories,
         pubDate: (links.length) ? links[links.length - 1].shareDate : Date.now(),
         ttl: 60,
+        language: 'en-US',
         custom_namespaces: {
           'webfeeds': 'http://webfeeds.org/rss/1.0',
+          'sy': 'http://web.resource.org/rss/1.0/modules/syndication/',
         },
         custom_elements: [
           { 'webfeeds:logo': `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/feed-logo.svg` },
-          { 'webfeeds:accentColor': '#2F6C8F' }
+          { 'webfeeds:accentColor': '#2F6C8F' },
+          { 'sy:updatePeriod': 'hourly' },
+          { 'sy:updateFrequency': 1 },
         ]
       });
+
+      feed.generator = `Aggregated by @RSS bot | ${feed.generator}`;
 
       links.forEach((link) => {
         feed.item(link.item);
@@ -111,7 +117,7 @@ module.exports = function(webserver, controller) {
     }
 
     // let's check to see if we already have a valid cached feed
-    controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
+    /*controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
       if (err) {
         console.error('ERROR: Could not load cached feed:', err);
       }
@@ -175,9 +181,9 @@ module.exports = function(webserver, controller) {
         });
       // NO CACHED FEED
       // let's build a new feed and cache it
-      } else {
+      } else {*/
         generateFeed(controller, teamId, channel, req, res, next);
-      }
-    });
+      /*}
+    });*/
   });
 }
