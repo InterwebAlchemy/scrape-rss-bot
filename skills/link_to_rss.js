@@ -54,7 +54,11 @@ module.exports = function(controller) {
   controller.on('interactive_message_callback', function(bot, message) {
     if (message.callback_id === 'ADD_TO_RSS') {
 
+      console.log(message);
+
       const [ timestamp, url ] = message.actions[0].value.split(':|:');
+
+      console.log(url);
 
       if (url === 'NO') {
         bot.replyInteractive(message, {
