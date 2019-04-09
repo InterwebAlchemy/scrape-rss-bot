@@ -53,14 +53,9 @@ module.exports = function(controller) {
 
   controller.on('interactive_message_callback', function(bot, message) {
     if (message.callback_id === 'ADD_TO_RSS') {
+      const value = message.actions[0].value;
 
-      console.log(message);
-
-      const [ timestamp, url ] = message.actions[0].value.split(':|:');
-
-      console.log(url);
-
-      if (url === 'NO') {
+      if (value === 'NO') {
         bot.replyInteractive(message, {
           'response_type': 'ephemeral',
           'text': '',
@@ -68,6 +63,8 @@ module.exports = function(controller) {
           'delete_original': true
         });
       } else {
+        const [ timestamp, url ] = value.split(':|:');
+
         getChannel(bot, message, (channelName, channelId) => {
           bot.replyInteractive(message, `Adding to RSS Feed...`);
 
@@ -106,6 +103,10 @@ module.exports = function(controller) {
                   });
                 }, 2500);
               });
+            })
+            .catch((error) => {
+              console.error('ERROR: error scraping url:', error);
+              console.log(message);
             })
           ;
         });
