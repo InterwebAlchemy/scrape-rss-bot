@@ -47,7 +47,17 @@ module.exports = function(controller) {
         ]
       };
 
-      bot.whisper(message, content);
+      // check to see if we are in a thread
+      if (message.thread_ts) {
+        // if we are, let's grab the thread's timestamp, so we can reply inline
+        const { thread_ts } = message;
+
+        // reply ephemerally inline
+        bot.whisper(message, Object.assign({}, { thread_ts }, content));
+      // otherwise just reply as normal
+      } else {
+        bot.whisper(message, content);
+      }
     });
   });
 
