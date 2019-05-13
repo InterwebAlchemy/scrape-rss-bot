@@ -130,39 +130,57 @@ module.exports = function(webserver, controller) {
       return next([new Error("Feed not found.")]);
     }
 
-    // let's check to see if we already have a valid cached feed
-    controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
-      if (err) {
-        console.error('ERROR: Could not load cached feed:', err);
-      }
+    if (process.env.CACHE === 'TRUE') {
+      // let's check to see if we already have a valid cached feed
+      controller.storage.feeds.get(`${teamId}::${channel}`, function(err, feed) {
+        if (err) {
+          console.error('ERROR: Could not load cached feed:', err);
+        }
 
-      // if we had a cached feed
-      if (feed) {
-        const { pubDate } = feed.feed;
+        // if we had a cached feed
+        if (feed) {
+          const { pubDate } = feed.feed;
 
-        // we'll want to grab the latest post and see if it has a shareDate after
-        // our cached feed's pubDate
-        const lastestPostQuery = {
-          teamId,
-          channelName: channel,
-        };
+          // we'll want to grab the latest post and see if it has a shareDate after
+          // our cached feed's pubDate
+          const lastestPostQuery = {
+            teamId,
+            channelName: channel,
+          };
 
-        // get the latest post
-        controller.storage.links.find(lastestPostQuery, function(err, feedLinks) {
-          if (err) {
-            console.error('ERROR: no recent posts:', err);
+          // get the latest post
+          controller.storage.links.find(lastestPostQuery, function(err, feedLinks) {
+            if (err) {
+              console.error('ERROR: no recent posts:', err);
 
-            res.sendStatus(404);
+              res.sendStatus(404);
 
-            return next([new Error('No posts to populate feed.')]);
-          }
+              return next([new Error('No posts to populate feed.')]);
+            }
 
-          const links = trimAndSortLinks(feedLinks, { shareDate: -1 }, 1);
+            const links = trimAndSortLinks(feedLinks, { shareDate: -1 }, 1);
 
-          if (links.length) {
-            const { shareDate } = links[0];
+            if (links.length) {
+              const { shareDate } = links[0];
 
-            if (shareDate <= pubDate) {
+              if (shareDate <= pubDate) {
+                console.log(`Retrieving ${teamId}::${channel} from cache`);
+
+                const cachedFeed = new RSS(feed.feed);
+
+                res
+                  .set('Content-Type', 'application/rss+xml')
+                  .status(200)
+                  .send(cachedFeed.xml())
+                ;
+
+                return next();
+              // NEW POSTS
+              // let's build a new feed and cache it
+              } else {
+                generateFeed(controller, teamId, channel, req, res, next);
+              }
+            } else {
               console.log(`Retrieving ${teamId}::${channel} from cache`);
 
               const cachedFeed = new RSS(feed.feed);
@@ -174,30 +192,16 @@ module.exports = function(webserver, controller) {
               ;
 
               return next();
-            // NEW POSTS
-            // let's build a new feed and cache it
-            } else {
-              generateFeed(controller, teamId, channel, req, res, next);
             }
-          } else {
-            console.log(`Retrieving ${teamId}::${channel} from cache`);
-
-            const cachedFeed = new RSS(feed.feed);
-
-            res
-              .set('Content-Type', 'application/rss+xml')
-              .status(200)
-              .send(cachedFeed.xml())
-            ;
-
-            return next();
-          }
-        });
-      // NO CACHED FEED
-      // let's build a new feed and cache it
-      } else {
-        generateFeed(controller, teamId, channel, req, res, next);
-      }
-    });
+          });
+        // NO CACHED FEED
+        // let's build a new feed and cache it
+        } else {
+          generateFeed(controller, teamId, channel, req, res, next);
+        }
+      });
+    } else {
+      generateFeed(controller, teamId, channel, req, res, next);
+    }
   });
 }
