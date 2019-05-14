@@ -95,18 +95,20 @@ const generateFeed = (controller, teamId, channel, req, res, next) => {
         feed.item(link.item);
       });
 
-      const cache = {
-        id: `${teamId}::${channel}`,
-        feed,
-      };
+      if (process.env.CACHE === 'TRUE') {
+        const cache = {
+          id: `${teamId}::${channel}`,
+          feed,
+        };
 
-      controller.storage.feeds.save(cache, function(err, id) {
-        if (err) {
-          console.error('ERROR: could not cache feed:', err);
-        }
+        controller.storage.feeds.save(cache, function(err, id) {
+          if (err) {
+            console.error('ERROR: could not cache feed:', err);
+          }
 
-        console.log(`${teamId}::${channel} feed cached.`);
-      });
+          console.log(`${teamId}::${channel} feed cached.`);
+        });
+      }
 
       res
         .set('Content-Type', 'application/rss+xml')
