@@ -1,7 +1,6 @@
 const metascraper = require('metascraper')([
   require('metascraper-youtube')(),
   require('metascraper-soundcloud')(),
-  require('metascraper-readability')(),
   require('metascraper-amazon')(),
   require('metascraper-author')(),
   require('metascraper-date')(),

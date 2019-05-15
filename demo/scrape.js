@@ -1,10 +1,7 @@
 const metascraper = require('metascraper')([
   require('metascraper-youtube')(),
   require('metascraper-soundcloud')(),
-  require('metascraper-readability')(),
   require('metascraper-amazon')(),
-  require('metascraper-audio')(),
-  require('metascraper-video')(),
   require('metascraper-author')(),
   require('metascraper-date')(),
   require('metascraper-description')(),
@@ -12,7 +9,6 @@ const metascraper = require('metascraper')([
   require('metascraper-clearbit-logo')(),
   require('metascraper-logo')(),
   require('metascraper-logo-favicon')(),
-  require('metascraper-media-provider')(),
   require('metascraper-publisher')(),
   require('metascraper-title')(),
   require('metascraper-url')(),
