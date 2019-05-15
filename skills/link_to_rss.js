@@ -123,66 +123,60 @@ module.exports = function(controller) {
 
                 if (originalMessage && originalMessage.text && originalMessage.text !== `<${url}>`) {
                   // TODO: add user name to description
-                  /*bot.api.users.info({ user: originalMessage.user }, (err, sharedBy) => {
-                    console.log(err, sharedBy);
-                  });*/
+                  bot.api.users.info({ user: originalMessage.user }, (err, sharedBy) => {
+                    const user = sharedBy.user.profile.display_name;
 
-                  formattedDescription = `<p>Original post: <blockquote>${originalMessage.text}</blockquote></p>${formattedDescription}`;
-                }
+                    formattedDescription = `<p>From #${channelName}: <blockquote>@${user}: ${originalMessage.text}</blockquote></p>${formattedDescription}`;
 
-                if (image) {
-                  formattedDescription = `<p><img src="${image}" /><p>${formattedDescription}`;
-                }
-
-                if (video) {
-                  formattedDescription = `${formattedDescription}<p><video controls src="${video}" /></p>`;
-                } else if (audio) {
-                  formattedDescription = `${formattedDescription}<p><audio controls src="${audio}" /></p>`;
-                }
-
-                const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid, description: formattedDescription });
-
-                const link = {
-                  id: guid,
-                  url,
-                  teamId: bot.team_info.id,
-                  shareDate: date,
-                  channelName,
-                  channelId,
-                  item,
-                };
-
-                controller.storage.links.save(link, function(err, id) {
-                  if (err) {
-                    debug('Error: could not save link record:', err);
-                  }
-
-                  let timeoutInterval = 1500;
-                  let nextIteration;
-
-                  bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelId)}|#${channelName} RSS Feed>.`);
-
-                  bot.api.reactions.add({ channel: message.channel, name: 'book', timestamp });
-
-                  if (URLS_TO_ADD.length) {
-                    timeoutInterval = 500;
-
-                    nextIteration = processQueue();
-                  }
-
-                  setTimeout(function() {
-                    bot.replyInteractive(message, {
-                      'response_type': 'ephemeral',
-                      'text': '',
-                      'replace_original': true,
-                      'delete_original': true
-                    });
-
-                    if (typeof nextIteration === 'function') {
-                      nextIteration();
+                    if (image) {
+                      formattedDescription = `<p><img src="${image}" /><p>${formattedDescription}`;
                     }
-                  }, timeoutInterval);
-                });
+
+                    const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid, description: formattedDescription });
+
+                    const link = {
+                      id: guid,
+                      url,
+                      teamId: bot.team_info.id,
+                      shareDate: date,
+                      channelName,
+                      channelId,
+                      item,
+                    };
+
+                    controller.storage.links.save(link, function(err, id) {
+                      if (err) {
+                        debug('Error: could not save link record:', err);
+                      }
+
+                      let timeoutInterval = 1500;
+                      let nextIteration;
+
+                      bot.replyInteractive(message, `:+1: I've added this link to the <${getFeed(bot.team_info.id, channelId)}|#${channelName} RSS Feed>.`);
+
+                      bot.api.reactions.add({ channel: message.channel, name: 'book', timestamp });
+
+                      if (URLS_TO_ADD.length) {
+                        timeoutInterval = 500;
+
+                        nextIteration = processQueue();
+                      }
+
+                      setTimeout(function() {
+                        bot.replyInteractive(message, {
+                          'response_type': 'ephemeral',
+                          'text': '',
+                          'replace_original': true,
+                          'delete_original': true
+                        });
+
+                        if (typeof nextIteration === 'function') {
+                          nextIteration();
+                        }
+                      }, timeoutInterval);
+                    });
+                  });
+                }
               })
               .catch((error) => {
                 console.error('ERROR: error scraping url:', error);
