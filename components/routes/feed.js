@@ -1,3 +1,5 @@
+const acceptableAgents = /^Feed(?:Validator|Press).+$/;
+
 module.exports = function(webserver, controller) {
   webserver.get('/feed/:teamId/:channelId', function(req, res, next) {
     const { teamId, channelId } = req.params;
@@ -9,24 +11,35 @@ module.exports = function(webserver, controller) {
       return next([new Error("Feed not found.")]);
     }
 
-    controller.storage.feeds.get(`${teamId}::${channelId}`, function(err, cachedFeed) {
-      if (err) {
-        console.error('ERROR: Could not load cached feed:', err);
-      }
+    const agent = req.get('User-Agent');
 
-      if (cachedFeed && cachedFeed.feed) {
-        res
-          .set('Content-Type', 'application/rss+xml')
-          .status(200)
-          .send(cachedFeed.feed)
-        ;
+    const isAcceptableAgent = acceptableAgents.test(agent);
 
-        return next();
-      } else {
-        res.sendStatus(404);
+    if (isAcceptableAgent || process.env.ANALYTICS === 'FALSE') {
+      controller.storage.feeds.get(`${teamId}::${channelId}`, function(err, cachedFeed) {
+        if (err) {
+          console.error('ERROR: Could not load cached feed:', err);
+        }
 
-        return next([new Error("Feed not found.")]);
-      }
-    });
+        if (cachedFeed && cachedFeed.feed) {
+          res
+            .set('Content-Type', 'application/rss+xml')
+            .status(200)
+            .send(cachedFeed.feed)
+          ;
+
+          return next();
+        } else {
+          res.sendStatus(404);
+
+          return next([new Error("Feed not found.")]);
+        }
+      });
+    } else {
+      res
+        .status(302)
+        .redirect(`${process.env.FEEDPRESS_FEED_URL}/${teamId}-${channelId}`);
+      ;
+    }
   });
 }

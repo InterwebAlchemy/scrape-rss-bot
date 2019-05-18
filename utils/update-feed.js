@@ -152,10 +152,9 @@ module.exports = (controller, bot, teamId, channelId) => {
                   .then((response) => {
                     const { data } = response;
 
-                    console.log(response);
-
                     if (data.errors && data.errors.length) {
                       data.errors.forEach((err) => console.error('ERROR:', err));
+                      console.log(response);
                     } else {
                       console.log(data);
                     }

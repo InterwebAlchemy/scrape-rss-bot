@@ -6,7 +6,7 @@ module.exports = (teamId, channelId) => {
   }
 
   const usingFeedPress = (process.env.ANALYTICS === 'TRUE');
-  const usingHostName = (process.env.FEEDPRESS_HOSTNAME);
+  const usingHostName = (usingFeedPress && process.env.FEEDPRESS_HOSTNAME);
 
-  return (usingFeedPress) ? `${(usingHostName) ? process.env.FEEDPRESS_HOSTNAME : process.env.FEEDPRESS_FEED_URL}/${teamId}-${channelId}` : getFeed(teamId, channelId);
+  return (usingHostName) ? `${process.env.FEEDPRESS_HOSTNAME}/${teamId}-${channelId}` : getFeed(teamId, channelId);
 };
