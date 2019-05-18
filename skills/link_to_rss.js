@@ -1,8 +1,9 @@
 const shortId = require('shortid');
 
 const scrape = require('../utils/scrape');
-const getFeed = require('../utils/rss-link');
+const getFeed = require('../utils/get-feed-url');
 const getChannel = require('../utils/get-channel-name');
+const updateFeed = require('../utils/update-feed');
 
 const GLOBAL_URL_REGEX = /<(https?:\/\/[-A-Z0-9._~:\/?#[\]@!$&'()*+,;=]+)>/igm;
 const URL_REGEX = /<(https?:\/\/[-A-Z0-9._~:\/?#[\]@!$&'()*+,;=]+)>/i;
@@ -59,14 +60,16 @@ module.exports = function(controller) {
   controller.on('bot_channel_join', function(bot, message) {
     getChannel(bot, message, (channelName, channelId) => {
       bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);
-      bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelName)}>`);
-      bot.reply(message, 'You can get the feed URL at any time by typing `/rssfeed`');
+      bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelId)}>`);
+      bot.reply(message, 'You can get the feed URL for this channel at any time by typing `/rssfeed`');
+
+      updateFeed(controller, bot, bot.team_info.id, channelId);
     });
   });
 
   controller.on('slash_command',function(bot, message) {
     getChannel(bot, message, (channelName, channelId) => {
-      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelName)}>`);
+      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
     });
   });
 
@@ -154,6 +157,8 @@ module.exports = function(controller) {
 
                         const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '$1');
 
+                        console.log(formattedMessageText);
+
                         formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
 
                         if (image) {
@@ -177,6 +182,8 @@ module.exports = function(controller) {
                           if (err) {
                             debug('Error: could not save link record:', err);
                           }
+
+                          updateFeed(controller, bot, bot.team_info.id, channel.id);
 
                           bot.api.reactions.add({ channel: channel.id, name: 'book', timestamp });
                         });
@@ -295,6 +302,8 @@ module.exports = function(controller) {
 
                         if (typeof nextIteration === 'function') {
                           nextIteration();
+                        } else {
+                          updateFeed(controller, bot, bot.team_info.id, channelId);
                         }
                       }, timeoutInterval);
                     });

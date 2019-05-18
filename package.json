@@ -7,9 +7,10 @@
     "start": "node bot.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.15.2",
     "botkit": "^0.7.0",
-    "botkit-storage-mongo": "^1.0.6",
+    "botkit-storage-mongo": "github:howdyai/botkit-storage-mongo",
     "cookie-parser": "^1.4.3",
     "debug": "^2.3.3",
     "express": "^4.14.0",
@@ -33,6 +34,7 @@
     "metascraper-url": "^5.3.0-alpha.11",
     "metascraper-video": "^5.3.0-alpha.11",
     "metascraper-youtube": "^5.3.0-alpha.11",
+    "qs": "^6.7.0",
     "querystring": "^0.2.0",
     "rss": "^1.2.2",
     "shortid": "^2.2.14",

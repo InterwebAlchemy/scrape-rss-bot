@@ -54,7 +54,15 @@ const bot_options = {
   clientId: process.env.clientId,
   clientSecret: process.env.clientSecret,
   clientSigningSecret: process.env.clientSigningSecret,
-  scopes: ['bot'],
+  scopes: [
+    'bot',
+    'chat:write:bot',
+    'channels:history',
+    'channels:read',
+    'commands',
+    'reactions:write',
+    'users:read',
+  ],
 };
 
 // Use a mongo database if specified, otherwise store in a JSON file local to the app.
