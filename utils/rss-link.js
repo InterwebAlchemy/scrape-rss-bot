@@ -1,13 +1,9 @@
-module.exports = function(teamId, channelName = '') {
-  if (!teamId) {
+const getDomain = require('./get-domain');
+
+module.exports = function(teamId, channelId = '') {
+  if (!teamId || !channelId) {
     return '';
   }
 
-  let feedUrl = `https://${process.env.HEROKU_APP_NAME}.herokuapp.com/feed/${teamId}`;
-
-  if (channelName) {
-    feedUrl = `${feedUrl}/${channelName}`;
-  }
-
-  return feedUrl;
+  return `https://${getDomain()}/feed/${teamId}/${channelId}`;
 }
