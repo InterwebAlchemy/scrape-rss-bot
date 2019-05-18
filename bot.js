@@ -59,6 +59,7 @@ const bot_options = {
     'chat:write:bot',
     'channels:history',
     'channels:read',
+    'channels:write',
     'commands',
     'reactions:write',
     'users:read',

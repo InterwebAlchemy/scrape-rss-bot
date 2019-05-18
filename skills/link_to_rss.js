@@ -61,15 +61,37 @@ module.exports = function(controller) {
     getChannel(bot, message, (channelName, channelId) => {
       bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);
       bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelId)}>`);
-      bot.reply(message, 'You can get the feed URL for this channel at any time by typing `/rssfeed`');
+      bot.reply(message, 'You can get the feed URL for this channel at any time by using the `/rssfeed` command.');
+      bot.reply(message, `If you get tired of my RSS Feed, use \`/stoprss\` to ask me to stop generating a feed for #${channelName}.`);
 
       updateFeed(controller, bot, bot.team_info.id, channelId);
     });
   });
 
   controller.on('slash_command',function(bot, message) {
+    bot.replyAcknowledge();
+
     getChannel(bot, message, (channelName, channelId) => {
-      bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+      const { command } = message;
+
+      switch (command) {
+        case '/rssfeed':
+          bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+
+          break;
+        case '/stoprss':
+          bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
+            if (err) {
+              bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
+            }
+
+            // TODO: clean up feed from controller.storage and feedpress
+          })
+
+          break;
+        default:
+          break;
+      }
     });
   });
 
@@ -156,8 +178,6 @@ module.exports = function(controller) {
                         }
 
                         const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '$1');
-
-                        console.log(formattedMessageText);
 
                         formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
 
