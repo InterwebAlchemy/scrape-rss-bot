@@ -1,45 +1,59 @@
 const acceptableAgents = /^Feed(?:Validator|Press).+$/;
 
+const shouldRedirect = (req, res, next) => {
+  const { teamId, channelId } = req.params;
+
+  const agent = req.get('User-Agent');
+
+  const shouldRedirect = !acceptableAgents.test(agent) && process.env.ANALYTICS === 'TRUE' && process.env.FEEDPRESS_FEED_URL;
+
+  if (shouldRedirect) {
+    return res.redirect(302, `${process.env.FEEDPRESS_FEED_URL}/${teamId}-${channelId}`);
+  }
+
+  return next();
+}
+
+const hasParams = (req, res, next) => {
+  const { teamId, channelId } = req.params;
+
+  // make sure we were sent the team id and channel id
+  if (!teamId || !channelId) {
+    return res
+      .sendStatus(404)
+      .send('<p>Feed not found.</p>')
+      .end()
+    ;
+  }
+
+  return next();
+}
+
 module.exports = function(webserver, controller) {
-  webserver.get('/feed/:teamId/:channelId', function(req, res, next) {
+  webserver.get('/feed/:teamId/:channelId', hasParams, shouldRedirect, function(req, res, next) {
     const { teamId, channelId } = req.params;
 
-    // make sure we were sent the team id and channel id
-    if (!teamId || !channelId) {
-      res.sendStatus(404);
+    controller.storage.feeds.get(`${teamId}::${channelId}`, function(err, cachedFeed) {
+      if (err) {
+        console.error('ERROR: Could not load cached feed:', err);
+      }
 
-      return next([new Error("Feed not found.")]);
-    }
+      if (cachedFeed && cachedFeed.feed) {
+        res
+          .set('Content-Type', 'application/rss+xml')
+          .status(200)
+          .send(cachedFeed.feed)
+          .end()
+        ;
 
-    const agent = req.get('User-Agent');
-
-    const isAcceptableAgent = acceptableAgents.test(agent);
-
-    if (isAcceptableAgent || process.env.ANALYTICS === 'FALSE') {
-      controller.storage.feeds.get(`${teamId}::${channelId}`, function(err, cachedFeed) {
-        if (err) {
-          console.error('ERROR: Could not load cached feed:', err);
-        }
-
-        if (cachedFeed && cachedFeed.feed) {
-          res
-            .set('Content-Type', 'application/rss+xml')
-            .status(200)
-            .send(cachedFeed.feed)
-          ;
-
-          return next();
-        } else {
-          res.sendStatus(404);
-
-          return next([new Error("Feed not found.")]);
-        }
-      });
-    } else {
-      res
-        .status(302)
-        .redirect(`${process.env.FEEDPRESS_FEED_URL}/${teamId}-${channelId}`);
-      ;
-    }
+        return next();
+      } else {
+        return res
+          .sendStatus(404)
+          .send('<p>Feed not found.</p>')
+          .end()
+        ;
+      }
+    });
   });
 }
