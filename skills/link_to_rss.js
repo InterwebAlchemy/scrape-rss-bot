@@ -69,8 +69,6 @@ module.exports = function(controller) {
   });
 
   controller.on('slash_command',function(bot, message) {
-    bot.replyAcknowledge();
-
     getChannel(bot, message, (channelName, channelId) => {
       const { command } = message;
 
