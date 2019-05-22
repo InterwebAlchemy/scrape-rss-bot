@@ -72,23 +72,17 @@ module.exports = function(controller) {
     getChannel(bot, message, (channelName, channelId) => {
       const { command } = message;
 
-      switch (command) {
-        case '/rssfeed':
-          bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+      if (command === '/rssfeed') {
+        bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
 
-          break;
-        case '/stoprss':
-          bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
-            if (err) {
-              bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
-            }
+      } else if (command === '/stoprss') {
+        bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
+          if (err) {
+            bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
+          }
 
-            // TODO: clean up feed from controller.storage and feedpress
-          })
-
-          break;
-        default:
-          break;
+          // TODO: clean up feed from controller.storage and feedpress
+        });
       }
     });
   });
