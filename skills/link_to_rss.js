@@ -169,11 +169,11 @@ module.exports = function(controller) {
                           user = sharedBy.user.profile.display_name;
                         }
 
-                        const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '$1');
+                        const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '<a href="$1">$1</a>');
 
                         formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
 
-                        formattedDescription = `${formattedDescription}<p><a href="${url}">Read Article: ${title}</a></p>`;
+                        formattedDescription = `${formattedDescription}<p><a href="${url}">Read More</a></p>`;
 
                         if (image) {
                           formattedDescription = `<p><a href="${url}"><img src="${image}" /></a><p>${formattedDescription}`;
@@ -251,7 +251,7 @@ module.exports = function(controller) {
                 const date = Date.now();
                 const guid = shortId.generate();
 
-                let formattedDescription = `<p>${description}</p>`;
+                let formattedDescription = (description) ? `<p>${description}</p>` : '';
 
                 const originalMessage = messageResponse.messages[0];
 
@@ -267,12 +267,14 @@ module.exports = function(controller) {
                       user = sharedBy.user.profile.display_name;
                     }
 
-                    const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '$1');
+                    const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '<a href="$1">$1</a>');
 
                     formattedDescription = `<p>From #${channelName}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
 
+                    formattedDescription = `${formattedDescription}<p><a href="${url}">Read More</a></p>`;
+
                     if (image) {
-                      formattedDescription = `<p><img src="${image}" /><p>${formattedDescription}`;
+                      formattedDescription = `<p><a href="${url}"><img src="${image}" /></a><p>${formattedDescription}`;
                     }
 
                     const item = Object.assign({}, meta, { categories: [`#${channelName}`], date, guid, description: formattedDescription });
