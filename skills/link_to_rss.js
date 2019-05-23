@@ -155,7 +155,7 @@ module.exports = function(controller) {
                     const date = Date.now();
                     const guid = shortId.generate();
 
-                    let formattedDescription = `<p>${description}</p>`;
+                    let formattedDescription = (description) ? `<p>${description}</p>` : '';
 
                     if (originalMessage && originalMessage.text) {
                       bot.api.users.info({ user: originalMessage.user }, (err, sharedBy) => {
@@ -173,8 +173,10 @@ module.exports = function(controller) {
 
                         formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
 
+                        formattedDescription = `${formattedDescription}<p><a href="${url}">Read Article: ${title}</a></p>`;
+
                         if (image) {
-                          formattedDescription = `<p><img src="${image}" /><p>${formattedDescription}`;
+                          formattedDescription = `<p><a href="${url}"><img src="${image}" /></a><p>${formattedDescription}`;
                         }
 
                         const item = Object.assign({}, meta, { categories: [`#${channel.name}`], date, guid, description: formattedDescription });
