@@ -149,66 +149,76 @@ module.exports = function(controller) {
               checkForMultipleUrls.forEach((foundUrl) => {
                 const url = URL_REGEX.exec(foundUrl)[1];
 
-                scrape(url)
-                  .then(({ description, logo, image, video, audio, ...meta}) => {
+                controller.storage.links.find({ url, timestamp, channelId: channel.id }, (err, link) => {
+                  if (err) {
+                    console.error('ERROR:', err);
+                  }
 
-                    const date = Date.now();
-                    const guid = shortId.generate();
+                  if (link.length) {
+                      bot.replyInteractive(message, `Sorry, that link has already been added to the feed.`);
+                  } else {
+                    scrape(url)
+                      .then(({ description, logo, image, video, audio, ...meta}) => {
 
-                    let formattedDescription = (description) ? `<p>${description}</p>` : '';
+                        const date = Date.now();
+                        const guid = shortId.generate();
 
-                    if (originalMessage && originalMessage.text) {
-                      bot.api.users.info({ user: originalMessage.user }, (err, sharedBy) => {
-                        if (err) {
-                          console.error('ERROR:', 'Could not find user name for message');
+                        let formattedDescription = (description) ? `<p>${description}</p>` : '';
+
+                        if (originalMessage && originalMessage.text) {
+                          bot.api.users.info({ user: originalMessage.user }, (err, sharedBy) => {
+                            if (err) {
+                              console.error('ERROR:', 'Could not find user name for message');
+                            }
+
+                            let user;
+
+                            if (sharedBy && sharedBy.user) {
+                              user = sharedBy.user.profile.display_name;
+                            }
+
+                            const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '<a href="$1">$1</a>');
+
+                            formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
+
+                            formattedDescription = `${formattedDescription}<p><a href="${url}">Read More</a></p>`;
+
+                            if (image) {
+                              formattedDescription = `<p><a href="${url}"><img src="${image}" /></a><p>${formattedDescription}`;
+                            }
+
+                            const item = Object.assign({}, meta, { categories: [`#${channel.name}`], date, guid, description: formattedDescription });
+
+                            const link = {
+                              id: guid,
+                              url,
+                              timestamp,
+                              teamId: bot.team_info.id,
+                              shareDate: date,
+                              channelName: channel.name,
+                              channelId: channel.id,
+                              item,
+                            };
+
+                            controller.storage.links.save(link, function(err, id) {
+                              if (err) {
+                                debug('Error: could not save link record:', err);
+                              }
+
+                              updateFeed(controller, bot, bot.team_info.id, channel.id);
+
+                              bot.api.reactions.add({ channel: channel.id, name: 'book', timestamp });
+                            });
+                          });
                         }
-
-                        let user;
-
-                        if (sharedBy && sharedBy.user) {
-                          user = sharedBy.user.profile.display_name;
-                        }
-
-                        const formattedMessageText = originalMessage.text.replace(GLOBAL_URL_REGEX, '<a href="$1">$1</a>');
-
-                        formattedDescription = `<p>From #${channel.name}: <blockquote>${(user) ? `@${user}: ` : ''}${formattedMessageText}</blockquote></p>${formattedDescription}`;
-
-                        formattedDescription = `${formattedDescription}<p><a href="${url}">Read More</a></p>`;
-
-                        if (image) {
-                          formattedDescription = `<p><a href="${url}"><img src="${image}" /></a><p>${formattedDescription}`;
-                        }
-
-                        const item = Object.assign({}, meta, { categories: [`#${channel.name}`], date, guid, description: formattedDescription });
-
-                        const link = {
-                          id: guid,
-                          url,
-                          timestamp,
-                          teamId: bot.team_info.id,
-                          shareDate: date,
-                          channelName: channel.name,
-                          channelId: channel.id,
-                          item,
-                        };
-
-                        controller.storage.links.save(link, function(err, id) {
-                          if (err) {
-                            debug('Error: could not save link record:', err);
-                          }
-
-                          updateFeed(controller, bot, bot.team_info.id, channel.id);
-
-                          bot.api.reactions.add({ channel: channel.id, name: 'book', timestamp });
-                        });
-                      });
-                    }
-                  })
-                  .catch((error) => {
-                    console.error('ERROR: error scraping url:', error);
-                    console.log(message);
-                  })
-                ;
+                      })
+                      .catch((error) => {
+                        console.error('ERROR: error scraping url:', error);
+                        console.log(message);
+                      })
+                    ;
+                  }
+                });
               });
             }
           }
