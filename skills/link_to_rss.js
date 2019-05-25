@@ -62,7 +62,8 @@ module.exports = function(controller) {
       bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);
       bot.reply(message, `*RSS Feed for #${channelName}*: <${getFeed(bot.team_info.id, channelId)}>`);
       bot.reply(message, 'You can get the feed URL for this channel at any time by using the `/rssfeed` command.');
-      bot.reply(message, `If you get tired of my RSS Feed, use \`/stoprss\` to ask me to stop generating a feed for #${channelName}.`);
+      bot.reply(message, `If you get tired of my RSS Feed, use \`/rssquit\` to ask me to stop generating a feed for #${channelName}.`);
+      bot.reply(message, 'If you need help, use `/rsshelp`.');
 
       updateFeed(controller, bot, bot.team_info.id, channelId);
     });
@@ -73,16 +74,49 @@ module.exports = function(controller) {
       const { command } = message;
 
       if (command === '/rssfeed') {
-        bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+        bot.api.users.conversations({ user: bot.config.bot.user_id }, (err, { channels }) => {
+          if (err) {
+            console.error('ERROR:', err);
 
-      } else if (command === '/stoprss') {
+            // TODO: Add ephemeral error message for user
+
+            return;
+          }
+
+          const botChannels = channels.map(({ id }) => id);
+
+          if (!botChannels.includes(channelId)) {
+            console.warn('WARNING:', `Tried to get feed URL from #${channelName}, but @RSS bot is not in channel`);
+
+            bot.replyPrivate(message, `Sorry, I'm not in this channel, but if you \`/invite @RSS bot\` I can start creating an RSS Feed for #${channelName}.`);
+          } else {
+            bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+          }
+        });
+      } else if (command === '/rssquit') {
         bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
           if (err) {
             bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
           }
 
-          // TODO: clean up feed from controller.storage and feedpress
+          bot.replyAcknowledge();
+
+          controller.storage.links.delete({ channelId, teamId: bot.team_info.id }, (err) => {
+            if (err) {
+              console.error('ERROR: could not delete link:', err);
+            }
+          });
+
+          controller.storage.feeds.delete({ id: `${bot.team_info.id}::${channelId}` }, (err) => {
+            if (err) {
+              console.error('ERROR: could not delete feed:', err);
+            }
+          });
+
+          // TODO: clean up feed from FeedPress if they add /feeds/delete.json endpoint
         });
+      } else if (command === '/rsshelp') {
+        bot.replyPrivate(message, `If you need any help please reach out to <https://www.rssbot.app/help|@RSS bot Support>.`);
       }
     });
   });
