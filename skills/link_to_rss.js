@@ -49,10 +49,10 @@ const addUrlToFeed = (url, message, channelName) => {
     const { thread_ts } = message;
 
     // reply ephemerally inline
-    bot.whisper(message, Object.assign({}, { thread_ts }, content));
+    bot.whisper(message, Object.assign({}, { thread_ts, as_user: false }, content));
   // otherwise just reply as normal
   } else {
-    bot.whisper(message, content);
+    bot.whisper(message, Object.assign({}, { as_user: false }, content));
   }
 };
 
