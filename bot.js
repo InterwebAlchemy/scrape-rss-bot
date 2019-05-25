@@ -100,6 +100,14 @@ webserver.get('/help', function(req, res){
   });
 });
 
+webserver.get('/privacy', function(req, res){
+  res.render('privacy', {
+    domain: req.get('host'),
+    protocol: req.protocol,
+    layout: 'layouts/default'
+  });
+});
+
 // Set up a simple storage backend for keeping a record of customers
 // who sign up for the app via the oauth
 require(__dirname + '/components/user_registration.js')(controller);
