@@ -1,6 +1,6 @@
 {
   "name": "@interweb-alchemy/rss-bot",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A bot for converting links in Slack to an RSS feed.",
   "main": "bot.js",
   "scripts": {
