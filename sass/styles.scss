@@ -1,22 +1,25 @@
-$botkit_purple: #a795ef;
+$bot_color: #2F6C8F;
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body,
 html {
-    margin: 0;
-    padding: 0;
-    font-size: 18px;
-    font-family: sans-serif;
-    background-color: #FFF;
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  font-family: sans-serif;
+  background-color: #FFF;
+}
 
+body {
+  padding: 2%;
 }
 
 .wrapper {
-    max-width: 1000px;
-    margin: 0 auto;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .box {
@@ -30,20 +33,25 @@ html {
 }
 
 footer {
-    text-align: center;
+  text-align: center;
 }
 
 .hero {
-    text-align: center;
-    padding: 2rem;
+  text-align: center;
+  margin-bottom: 70px;
 
-    h1 {
-        font-size: 4rem;
-    }
+  h1 {
+    font-size: 4rem;
+  }
+}
+
+article {
+  max-width: 720px;
+  margin: 0 auto;
 }
 
 a {
-    color: $botkit_purple;
+  color: $bot_color;
 }
 
 .copyurl {
@@ -52,12 +60,10 @@ a {
 }
 
 div.input {
-
   label {
     font-weight: bold;
     font-size: smaller;
   }
-
 }
 
 .addon {
@@ -66,6 +72,7 @@ div.input {
   border-radius: 6px;
   padding: 5px;
   background: #F0F0F0;
+
   textarea, input {
     flex-grow: 1;
     border: 0;
@@ -86,10 +93,9 @@ div.input {
 
     &:hover {
       background: #FFF;
-      color: $botkit_purple;
+      color: $bot_color;
     }
   }
-
 }
 
 div.hr {
@@ -100,22 +106,40 @@ div.hr {
 }
 
 a.button {
-    border: 2px solid $botkit_purple;
-    font-weight: bold;
-    // font-size: 4rem;
-    margin: 0;
-    border-radius: 3px;
-    display: inline-block;
-    padding: 0.5rem 2rem;
-    text-align: center;
-    text-decoration: none;
-    // color: #FFF;
-    box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
-    background-color: #FFF;
-    transition: box-shadow 0.1s linear;
+  border: 2px solid $bot_color;
+  font-weight: bold;
+  // font-size: 4rem;
+  margin: 0;
+  border-radius: 3px;
+  display: inline-block;
+  padding: 0.5rem 2rem;
+  text-align: center;
+  text-decoration: none;
+  // color: #FFF;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
+  background-color: #FFF;
+  transition: box-shadow 0.1s linear;
 
-    &:hover {
-        // background-color: rgba($botkit_purple, 0.1);
-        box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
-    }
+  &:hover {
+    // background-color: rgba($bot_color, 0.1);
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+  }
+}
+
+#header {
+  text-align: center;
+
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .slack-button {
+    margin-top: 24px;
+  }
+}
+
+#footer {
+  margin-top: 60px;
 }

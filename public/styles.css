@@ -1,5 +1,6 @@
 * {
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 body,
 html {
@@ -7,70 +8,95 @@ html {
   padding: 0;
   font-size: 18px;
   font-family: sans-serif;
-  background-color: #FFF; }
+  background-color: #FFF;
+}
+
+body {
+  padding: 2%;
+}
 
 .wrapper {
   max-width: 1000px;
-  margin: 0 auto; }
+  margin: 0 auto;
+}
 
 .box {
   border: 2px solid #CCC;
   padding: 1rem calc(1rem - 2px);
-  margin-bottom: 1rem; }
-  .box h1, .box h2, .box h3 {
-    margin-top: 0; }
+  margin-bottom: 1rem;
+}
+.box h1, .box h2, .box h3 {
+  margin-top: 0;
+}
 
 footer {
-  text-align: center; }
+  text-align: center;
+}
 
 .hero {
   text-align: center;
-  padding: 2rem; }
-  .hero h1 {
-    font-size: 4rem; }
+  margin-bottom: 70px;
+}
+.hero h1 {
+  font-size: 4rem;
+}
+
+article {
+  max-width: 720px;
+  margin: 0 auto;
+}
 
 a {
-  color: #a795ef; }
+  color: #2F6C8F;
+}
 
 .copyurl {
   width: 100%;
-  font-size: 1.5rem; }
+  font-size: 1.5rem;
+}
 
 div.input label {
   font-weight: bold;
-  font-size: smaller; }
+  font-size: smaller;
+}
 
 .addon {
   display: flex;
   border: 1px solid #999;
   border-radius: 6px;
   padding: 5px;
-  background: #F0F0F0; }
-  .addon textarea, .addon input {
-    flex-grow: 1;
-    border: 0;
-    background: transparent; }
-  .addon button {
-    flex-grow: 0;
-    background: transparent;
-    border: 1px solid #999;
-    border-radius: 6px;
-    font-weight: bold; }
-    .addon button.textarea {
-      align-self: flex-start;
-      padding: 0.5rem; }
-    .addon button:hover {
-      background: #FFF;
-      color: #a795ef; }
+  background: #F0F0F0;
+}
+.addon textarea, .addon input {
+  flex-grow: 1;
+  border: 0;
+  background: transparent;
+}
+.addon button {
+  flex-grow: 0;
+  background: transparent;
+  border: 1px solid #999;
+  border-radius: 6px;
+  font-weight: bold;
+}
+.addon button.textarea {
+  align-self: flex-start;
+  padding: 0.5rem;
+}
+.addon button:hover {
+  background: #FFF;
+  color: #2F6C8F;
+}
 
 div.hr {
   border: 1px dashed #ccc;
   width: 10%;
   margin: 4rem auto;
-  height: 1px; }
+  height: 1px;
+}
 
 a.button {
-  border: 2px solid #a795ef;
+  border: 2px solid #2F6C8F;
   font-weight: bold;
   margin: 0;
   border-radius: 3px;
@@ -80,8 +106,26 @@ a.button {
   text-decoration: none;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
   background-color: #FFF;
-  transition: box-shadow 0.1s linear; }
-  a.button:hover {
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1); }
+  transition: box-shadow 0.1s linear;
+}
+a.button:hover {
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+#header {
+  text-align: center;
+}
+#header .wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+#header .slack-button {
+  margin-top: 24px;
+}
+
+#footer {
+  margin-top: 60px;
+}
 
 /*# sourceMappingURL=styles.css.map */
