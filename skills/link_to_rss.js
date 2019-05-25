@@ -99,18 +99,28 @@ module.exports = function(controller) {
             bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
           }
 
-          bot.replyAcknowledge();
-
-          controller.storage.links.delete({ channelId, teamId: bot.team_info.id }, (err) => {
-            if (err) {
-              console.error('ERROR: could not delete link:', err);
-            }
-          });
-
-          controller.storage.feeds.delete({ id: `${bot.team_info.id}::${channelId}` }, (err) => {
+          controller.storage.feeds.delete(`${bot.team_info.id}::${channelId}`, (err) => {
             if (err) {
               console.error('ERROR: could not delete feed:', err);
             }
+
+            console.log(`Deleting feed ${bot.team_info.id}::${channelId} #${channelName}...`);
+
+            controller.storage.links.find({ channelId, teamId: bot.team_info.id }, (err, links) => {
+              if (err) {
+                console.error(`ERROR: could not delete links for #${channelName}:`, err);
+              }
+
+              links.forEach((link) => {
+                controller.storage.links.delete(link.id, (err) => {
+                  if (err) {
+                    console.error('ERROR: could not delete old link:', err);
+                  }
+                });
+              });
+
+              bot.replyAcknowledge();
+            });
           });
 
           // TODO: clean up feed from FeedPress if they add /feeds/delete.json endpoint
