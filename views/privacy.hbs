@@ -8,7 +8,11 @@
     <p>The display name of the user who originally shared the link will appear in the RSS feed entry for that link along with any text they posted with the link.</p>
     <p>Our RSS feeds use analytics tracking via <a href="https://feed.press/" target="_blank" rel="noopener noreferrer">FeedPress</a> to keep track of subscriber counts. We do not store any analytics data from FeedPress.</p>
     <p>We only store the last 10 links shared in each channel.</p>
-    <p></p>
+    {{#if (processEnv 'ANALYTICS' 'TRUE' false)}}
+      {{#if (processEnv 'GOOGLE_ANALYTICS_ID' '' true)}}
+        <p>This site uses <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer">Google Analytics</a> to keep track of traffic numbers.</p>
+      {{/if}}
+    {{/if}}
     <h2>Questions?</h2>
     <ol>
       <li><a href="mailto:info@rssbot.app" target="_blank" rel="noopener noreferrer">Email Support</a></li>
