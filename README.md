@@ -1,5 +1,7 @@
 # @RSS bot
 
+![Uptime Robot status](https://img.shields.io/uptimerobot/status/m782753434-a9c163b1ffe247099d3c6aa5.svg?style=flat-square)
+
 [![@RSS bot logo](public/favicon-32x32.png?raw=true)](https://www.rssbot.app/)
 [![Add to Slack](https://platform.slack-edge.com/img/add_to_slack.png)](https://www.rssbot.app/login)
 
