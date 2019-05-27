@@ -49,7 +49,7 @@ module.exports = function(webserver, controller) {
         return next();
       } else {
         return res
-          .sendStatus(404)
+          .status(404)
           .send('<p>Feed not found.</p>')
           .end()
         ;
