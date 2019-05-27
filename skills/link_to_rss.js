@@ -74,59 +74,67 @@ module.exports = function(controller) {
       const { command } = message;
 
       if (command === '/rssfeed') {
-        bot.api.users.conversations({ user: bot.config.bot.user_id }, (err, { channels }) => {
-          if (err) {
-            console.error('ERROR:', err);
-
-            // TODO: Add ephemeral error message for user
-
-            return;
-          }
-
-          const botChannels = channels.map(({ id }) => id);
-
-          if (!botChannels.includes(channelId)) {
-            console.warn('WARNING:', `Tried to get feed URL from #${channelName}, but @RSS bot is not in channel`);
-
-            bot.replyPrivate(message, `Sorry, I'm not in this channel, but if you \`/invite @RSS bot\` I can start creating an RSS Feed for #${channelName}.`);
-          } else {
-            bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
-          }
-        });
-      } else if (command === '/rssquit') {
-        bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
-          if (err) {
-            bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
-          }
-
-          controller.storage.feeds.delete(`${bot.team_info.id}::${channelId}`, (err) => {
+        if (channelName && channelId) {
+          bot.api.users.conversations({ user: bot.config.bot.user_id }, (err, { channels }) => {
             if (err) {
-              console.error('ERROR: could not delete feed:', err);
+              console.error('ERROR:', err);
+
+              // TODO: Add ephemeral error message for user
+
+              return;
             }
 
-            console.log(`Deleting feed ${bot.team_info.id}::${channelId} #${channelName}...`);
+            const botChannels = channels.map(({ id }) => id);
 
-            controller.storage.links.find({ channelId, teamId: bot.team_info.id }, (err, links) => {
+            if (!botChannels.includes(channelId)) {
+              console.warn('WARNING:', `Tried to get feed URL from #${channelName}, but @RSS bot is not in channel`);
+
+              bot.replyPrivate(message, `Sorry, I'm not in this channel, but if you \`/invite @RSS bot\` I can start creating an RSS Feed for #${channelName}.`);
+            } else {
+              bot.replyPrivate(message, `*#${channelName} RSS Feed*: <${getFeed(bot.team_info.id, channelId)}>`);
+            }
+          });
+        } else {
+          bot.replyPrivate(message, `Sorry, this doesn't appear to be a channel. If you need any help please reach out to <https://www.rssbot.app/help|@RSS bot Support>.`);
+        }
+      } else if (command === '/rssquit') {
+        if (channelName && channelId) {
+          bot.api.channels.kick({ token: bot.config.bot.app_token, channel: channelId, user: bot.config.bot.user_id }, (err, response) => {
+            if (err) {
+              bot.replyPrivate(message, 'I\'m sorry. It looks like your account doesn\'t have permission to kick users. Please contact your nearest Slack admin to have me removed from this channel.');
+            }
+
+            controller.storage.feeds.delete(`${bot.team_info.id}::${channelId}`, (err) => {
               if (err) {
-                console.error(`ERROR: could not delete links for #${channelName}:`, err);
+                console.error('ERROR: could not delete feed:', err);
               }
 
-              links.forEach((link) => {
-                controller.storage.links.delete(link.id, (err) => {
-                  if (err) {
-                    console.error('ERROR: could not delete old link:', err);
-                  }
+              console.log(`Deleting feed ${bot.team_info.id}::${channelId} #${channelName}...`);
+
+              controller.storage.links.find({ channelId, teamId: bot.team_info.id }, (err, links) => {
+                if (err) {
+                  console.error(`ERROR: could not delete links for #${channelName}:`, err);
+                }
+
+                links.forEach((link) => {
+                  controller.storage.links.delete(link.id, (err) => {
+                    if (err) {
+                      console.error('ERROR: could not delete old link:', err);
+                    }
+                  });
                 });
+
+                bot.replyAcknowledge();
               });
-
-              bot.replyAcknowledge();
             });
-          });
 
-          // TODO: clean up feed from FeedPress if they add /feeds/delete.json endpoint
-        });
+            // TODO: clean up feed from FeedPress if they add /feeds/delete.json endpoint
+          });
+        } else {
+          bot.replyPrivate(message, `Sorry, this doesn't appear to be a channel. If you need any help please reach out to <https://www.rssbot.app/help|@RSS bot Support>.`);
+        }
       } else if (command === '/rsshelp') {
-        bot.replyPrivate(message, `If you need any help please reach out to <https://www.rssbot.app/help|@RSS bot Support>.`);
+        bot.replyPrivate(message, `Hey there, \`/invite\` me to a channel to get started. If you need any help please reach out to <https://www.rssbot.app/help|@RSS bot Support>.`);
       }
     });
   });
