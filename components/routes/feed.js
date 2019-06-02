@@ -20,7 +20,12 @@ const hasParams = (req, res, next) => {
   // make sure we were sent the team id and channel id
   if (!teamId || !channelId) {
     return res
-      .redirect(404, '/404.html')
+      .status(404)
+      .render('404', {
+        domain: req.get('host'),
+        protocol: req.protocol,
+        layout: 'layouts/default'
+      })
     ;
   }
 
@@ -47,7 +52,12 @@ module.exports = function(webserver, controller) {
         return next();
       } else {
         return res
-          .redirect(404, '/404.html')
+          .status(404)
+          .render('404', {
+            domain: req.get('host'),
+            protocol: req.protocol,
+            layout: 'layouts/default'
+          })
         ;
       }
     });
