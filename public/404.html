@@ -1,10 +1,9 @@
 <!doctype html>
 <html>
-  <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <meta http-equiv="Content-Language" content="en">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@RSS Bot Installed | A Slackbot that generates RSS Feeds</title>
+    <title>@RSS Bot Error! | A Slackbot that generates RSS Feeds</title>
     <meta name="description" content="Generate RSS feeds from links shared in your Slack channels.">
     <link rel="stylesheet" href="/styles.css" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -16,28 +15,6 @@
     <meta name="application-name" content="RSS bot">
     <meta name="msapplication-TileColor" content="#2f6c8f">
     <meta name="theme-color" content="#ffffff">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script>
-      function getCookie(name) {
-        var value = "; " + document.cookie;
-        var parts = value.split("; " + name + "=");
-        if (parts.length == 2) return parts.pop().split(";").shift();
-      }
-
-      function generateSlackLink() {
-        var team_id = getCookie('team_id');
-        var bot_id = getCookie('bot_user_id');
-
-        if (team_id && bot_id) {
-          var url = 'slack://user?team=' + team_id + '&id=' + bot_id;
-          $('#slack_link').attr('href',url);
-        }
-      }
-
-      $(function() {
-        generateSlackLink();
-      });
-    </script>
   </head>
   <body>
     <header id="header">
@@ -45,14 +22,14 @@
         <a href="https://www.rssbot.app/">
           <img src="/rssbot.svg" alt="Back to Homepage" />
         </a>
-        <a href="/login" class="slack-button">
-          <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" />
-        </a>
       </div>
     </header>
     <main class="hero wrapper">
-      <h1>Success! <a href="slack://open" id="slack_link">Your new bot is waiting!</a></h1>
+      <h1>Sorry, @RSS bot couldn't find what you're looking for.</h1>
     </main>
+    <article>
+      <p>If you need help, get in touch with <a href="/support">@RSS bot Support</a>.</p>
+    </article>
     <footer id="footer">
       <div class="wrapper">
         <p>

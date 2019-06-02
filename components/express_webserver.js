@@ -8,61 +8,85 @@ var hbs = require('express-hbs');
 
 module.exports = function(controller) {
 
-    const port = process.env.PORT || 3000;
+  /*function errorHandler (err, req, res, next) {
+    if (res.headersSent) {
+      return next(err);
+    }
 
-    var webserver = express();
-    webserver.use(function(req, res, next) {
-        req.rawBody = '';
+    res
+      .status(500)
+      .render('500')
+    ;
+  }
 
-        req.on('data', function(chunk) {
-            req.rawBody += chunk;
-        });
+  function error404Handler (req, res) {
+    res
+      .status(404)
+      .render('404')
+    ;
+  }*/
 
-        next();
-    });
-    webserver.use(cookieParser());
-    webserver.use(bodyParser.json());
-    webserver.use(bodyParser.urlencoded({ extended: true }));
+  const port = process.env.PORT || 3000;
 
-    // set up handlebars ready for tabs
-    webserver.engine('hbs', hbs.express4({
-      partialsDir: __dirname + '/../views/partials',
-    }));
-    webserver.set('view engine', 'hbs');
-    webserver.set('views', __dirname + '/../views/');
+  var webserver = express();
 
-    // Register sync helper
-    hbs.registerHelper('processEnv', function(property, isEqualTo, exists) {
-      if (exists) {
-        return !!process.env[property];
-      }
+  webserver.use(function(req, res, next) {
+    req.rawBody = '';
 
-      if (isEqualTo) {
-        return process.env[property] === isEqualTo;
-      }
-
-      return process.env[property];
+    req.on('data', function(chunk) {
+        req.rawBody += chunk;
     });
 
-    webserver.use(express.static('public'));
+    next();
+  });
 
-    var server = http.createServer(webserver);
+  webserver.use(cookieParser());
+  webserver.use(bodyParser.json());
+  webserver.use(bodyParser.urlencoded({ extended: true }));
 
-    server.listen(port, null, function() {
+  // set up handlebars ready for tabs
+  webserver.engine('hbs', hbs.express4({
+    partialsDir: __dirname + '/../views/partials',
+  }));
 
-        console.log(`Express webserver configured and listening at http://localhost:${port}`);
+  webserver.set('view engine', 'hbs');
 
-    });
+  webserver.set('views', __dirname + '/../views/');
 
-    // import all the pre-defined routes that are present in /components/routes
-    var normalizedPath = require("path").join(__dirname, "routes");
-    require("fs").readdirSync(normalizedPath).forEach(function(file) {
-      require("./routes/" + file)(webserver, controller);
-    });
+  // Register sync helper
+  hbs.registerHelper('processEnv', function(property, isEqualTo, exists) {
+    if (exists) {
+      return !!process.env[property];
+    }
 
-    controller.webserver = webserver;
-    controller.httpserver = server;
+    if (isEqualTo) {
+      return process.env[property] === isEqualTo;
+    }
 
-    return webserver;
+    return process.env[property];
+  });
 
+  webserver.use(express.static('public'));
+
+  var server = http.createServer(webserver);
+
+  server.listen(port, null, function() {
+    console.log(`Express webserver configured and listening at http://localhost:${port}`);
+  });
+
+  // import all the pre-defined routes that are present in /components/routes
+  var normalizedPath = require("path").join(__dirname, "routes");
+
+  require("fs").readdirSync(normalizedPath).forEach(function(file) {
+    require("./routes/" + file)(webserver, controller);
+  });
+
+  /*webserver.use(error404Handler);
+
+  webserver.use(errorHandler);*/
+
+  controller.webserver = webserver;
+  controller.httpserver = server;
+
+  return webserver;
 }

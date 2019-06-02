@@ -1,0 +1,4 @@
+# https://www.netlify.com/docs/continuous-deployment/#deploy-contexts
+
+[build]
+  publish = "public"
