@@ -57,6 +57,11 @@ const addUrlToFeed = (url, message, channelName) => {
 };
 
 module.exports = function(controller) {
+  controller.on('app_uninstalled', function(...args) {
+    console.log('===UNINSTALL===');
+    console.log(args);
+  });
+
   controller.on('bot_channel_join', function(bot, message) {
     getChannel(bot, message, (channelName, channelId) => {
       bot.reply(message, `Hey there! I\'m here to generate an RSS Feed from links posted to #${channelName}.`);

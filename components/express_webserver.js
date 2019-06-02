@@ -7,25 +7,6 @@ var http = require('http');
 var hbs = require('express-hbs');
 
 module.exports = function(controller) {
-
-  /*function errorHandler (err, req, res, next) {
-    if (res.headersSent) {
-      return next(err);
-    }
-
-    res
-      .status(500)
-      .render('500')
-    ;
-  }
-
-  function error404Handler (req, res) {
-    res
-      .status(404)
-      .render('404')
-    ;
-  }*/
-
   const port = process.env.PORT || 3000;
 
   var webserver = express();
@@ -80,10 +61,6 @@ module.exports = function(controller) {
   require("fs").readdirSync(normalizedPath).forEach(function(file) {
     require("./routes/" + file)(webserver, controller);
   });
-
-  /*webserver.use(error404Handler);
-
-  webserver.use(errorHandler);*/
 
   controller.webserver = webserver;
   controller.httpserver = server;
