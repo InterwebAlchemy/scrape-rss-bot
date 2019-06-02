@@ -4,6 +4,7 @@ const scrape = require('../utils/scrape');
 const getFeed = require('../utils/get-feed-url');
 const getChannel = require('../utils/get-channel-name');
 const updateFeed = require('../utils/update-feed');
+const deleteTeamData = require('../utils/delete-team-data');
 
 const GLOBAL_URL_REGEX = /<(https?:\/\/[-A-Z0-9._~:\/?#[\]@!$&'()*+,;=]+)>/igm;
 const URL_REGEX = /<(https?:\/\/[-A-Z0-9._~:\/?#[\]@!$&'()*+,;=]+)>/i;
@@ -57,9 +58,10 @@ const addUrlToFeed = (url, message, channelName) => {
 };
 
 module.exports = function(controller) {
-  controller.on('app_uninstalled', function(...args) {
-    console.log('===UNINSTALL===');
-    console.log(args);
+  controller.on('app_uninstalled', function(bot, message) {
+    const teamId = message.team;
+
+    deleteTeamData(controller, teamId);
   });
 
   controller.on('bot_channel_join', function(bot, message) {
