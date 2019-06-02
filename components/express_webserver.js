@@ -8,81 +8,85 @@ var hbs = require('express-hbs');
 
 module.exports = function(controller) {
 
-    const port = process.env.PORT || 3000;
+  function errorHandler (err, req, res, next) {
+    if (res.headersSent) {
+      return next(err);
+    }
 
-    var webserver = express();
-    webserver.use(function(req, res, next) {
-        req.rawBody = '';
+    res
+      .status(500)
+      .render('500')
+    ;
+  }
 
-        req.on('data', function(chunk) {
-            req.rawBody += chunk;
-        });
+  function error404Handler (req, res) {
+    res
+      .status(404)
+      .render('404')
+    ;
+  }
 
-        next();
-    });
-    webserver.use(cookieParser());
-    webserver.use(bodyParser.json());
-    webserver.use(bodyParser.urlencoded({ extended: true }));
+  const port = process.env.PORT || 3000;
 
-    // set up handlebars ready for tabs
-    webserver.engine('hbs', hbs.express4({
-      partialsDir: __dirname + '/../views/partials',
-    }));
-    webserver.set('view engine', 'hbs');
-    webserver.set('views', __dirname + '/../views/');
+  var webserver = express();
 
-    // Register sync helper
-    hbs.registerHelper('processEnv', function(property, isEqualTo, exists) {
-      if (exists) {
-        return !!process.env[property];
-      }
+  webserver.use(function(req, res, next) {
+    req.rawBody = '';
 
-      if (isEqualTo) {
-        return process.env[property] === isEqualTo;
-      }
-
-      return process.env[property];
+    req.on('data', function(chunk) {
+        req.rawBody += chunk;
     });
 
-    webserver.use(express.static('public'));
+    next();
+  });
 
-    //Handling 404
-    webserver.use(function(req, res) {
-      res
-        .status(404)
-        .sendFile(__dirname + '../public/404.html')
-      ;
-    });
+  webserver.use(cookieParser());
+  webserver.use(bodyParser.json());
+  webserver.use(bodyParser.urlencoded({ extended: true }));
 
+  // set up handlebars ready for tabs
+  webserver.engine('hbs', hbs.express4({
+    partialsDir: __dirname + '/../views/partials',
+  }));
 
-    // Handling 500
-    webserver.use(function(error, req, res, next) {
-      console.error('ERROR:', error);
+  webserver.set('view engine', 'hbs');
 
-      res
-        .status(500)
-        .sendFile(__dirname + '../public/404.html')
-      ;
-    });
+  webserver.set('views', __dirname + '/../views/');
 
+  // Register sync helper
+  hbs.registerHelper('processEnv', function(property, isEqualTo, exists) {
+    if (exists) {
+      return !!process.env[property];
+    }
 
-    var server = http.createServer(webserver);
+    if (isEqualTo) {
+      return process.env[property] === isEqualTo;
+    }
 
-    server.listen(port, null, function() {
+    return process.env[property];
+  });
 
-        console.log(`Express webserver configured and listening at http://localhost:${port}`);
+  webserver.use(express.static('public'));
 
-    });
+  var server = http.createServer(webserver);
 
-    // import all the pre-defined routes that are present in /components/routes
-    var normalizedPath = require("path").join(__dirname, "routes");
-    require("fs").readdirSync(normalizedPath).forEach(function(file) {
-      require("./routes/" + file)(webserver, controller);
-    });
+  server.listen(port, null, function() {
+    console.log(`Express webserver configured and listening at http://localhost:${port}`);
+  });
 
-    controller.webserver = webserver;
-    controller.httpserver = server;
+  // import all the pre-defined routes that are present in /components/routes
+  var normalizedPath = require("path").join(__dirname, "routes");
 
-    return webserver;
+  require("fs").readdirSync(normalizedPath).forEach(function(file) {
+    require("./routes/" + file)(webserver, controller);
+  });
 
+  webserver.use(error404Handler);
+
+  webserver.use(errorHandler);
+
+  controller.webserver = webserver;
+  controller.httpserver = server;
+
+  return webserver;
 }
