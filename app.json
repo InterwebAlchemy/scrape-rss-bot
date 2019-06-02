@@ -1,22 +1,35 @@
 {
-  "name": "Botkit Starter Kit",
-  "description": "A starting point for building custom Slack applications",
-  "repository": "https://github.com/howdyai/botkit-starter-slack",
-  "keywords": ["node", "bots", "slack","botkit"],
-  "website": "https://botkit.ai/",
+  "name": "@RSS bot",
+  "description": "A Slack bot that generates channel-specific RSS feeds from shared links.",
+  "repository": "https://github.com/InterwebAlchemy/scrape-rss-bot/",
+  "keywords": ["node", "bots", "slack","botkit", "rss", "RSS bot"],
+  "website": "https://www.rssbot.app/",
   "success_url":"/",
   "addons":[
     {
       "plan": "mongolab",
-      "as": "MONGO"
+      "as": "MONGODB"
     }
   ],
   "env": {
-      "clientId": {
-          "description": "Client ID provided by Slack"
-      },
-      "clientSecret": {
-          "description": "Client Secret provided by Slack"
-      }
+    "clientId": {
+      "required": true,
+      "description": "Client ID provided by Slack"
+    },
+    "clientSecret": {
+      "required": true,
+      "description": "Client Secret provided by Slack"
+    },
+    "clientSigningSecret": {
+      "required": true,
+      "description": "Client Signing Secret provided by Slack"
+    },
+    "ANALYTICS": "FALSE",
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
+    "HEROKU_PARENT_APP_NAME": {
+      "required": true
+    }
   }
 }
