@@ -1,0 +1,4 @@
+# https://www.netlify.com/docs/redirects/
+
+# Redirect default Netlify subdomain to primary domain
+https://loving-khorana-a9913a.netlify.com/* https://public.rssbot.app/:splat 301!
