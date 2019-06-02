@@ -20,9 +20,7 @@ const hasParams = (req, res, next) => {
   // make sure we were sent the team id and channel id
   if (!teamId || !channelId) {
     return res
-      .sendStatus(404)
-      .send('<p>Feed not found.</p>')
-      .end()
+      .redirect(404, '/404.html')
     ;
   }
 
@@ -49,9 +47,7 @@ module.exports = function(webserver, controller) {
         return next();
       } else {
         return res
-          .status(404)
-          .send('<p>Feed not found.</p>')
-          .end()
+          .redirect(404, '/404.html')
         ;
       }
     });

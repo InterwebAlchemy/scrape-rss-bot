@@ -46,6 +46,26 @@ module.exports = function(controller) {
 
     webserver.use(express.static('public'));
 
+    //Handling 404
+    webserver.use(function(req, res) {
+      res
+        .status(404)
+        .sendFile(__dirname + '../public/404.html')
+      ;
+    });
+
+
+    // Handling 500
+    webserver.use(function(error, req, res, next) {
+      console.error('ERROR:', error);
+
+      res
+        .status(500)
+        .sendFile(__dirname + '../public/404.html')
+      ;
+    });
+
+
     var server = http.createServer(webserver);
 
     server.listen(port, null, function() {
