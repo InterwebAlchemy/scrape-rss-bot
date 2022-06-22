@@ -16,7 +16,7 @@
     "debug": "^2.3.3",
     "express": "^4.14.0",
     "express-hbs": "^2.1.2",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "metascraper": "^5.3.0-alpha.11",
     "metascraper-amazon": "^5.3.0-alpha.11",
     "metascraper-audio": "^5.3.0-alpha.11",
